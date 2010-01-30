@@ -3,18 +3,20 @@ Ziele:
 - crud operationen führen zu einem sofortigen update der views
 - unabhängige views
 - meta-informationen werden im Presentation Model (PM) geteilt (nicht im view)
-  Bsp: dirty (pro property), nullable
 - PM enthält n Attribute
 - Attribut enthält
-  Properties dirty, transientValue, persistentValue, enabled, visible, <propertyname>, (typemarker?)... ,
-- GORM constraints im Attribut verfügbar
+  Properties dirty (derived), value (transient), modelValue (persistent), enabled, visible,
+  description (derived from key through message bundle)
+- GORM constraints im Attribut verfügbar (?)
 
 - view:pm = m:n
 - pm:attribut = 1:n
 
 - Binding:
   möglichst einfach :-)
-  view -> pm
+  view.bind pm
+  leads to bi-directional binding
+  "unbind"?
 
 - "mini app"
   AttributEditor
@@ -23,4 +25,23 @@ Ziele:
 x UI nach Client Shutdown wiederherstellbar, neue connection stellt altes UI wieder her (gestrichen)
 - re-connect stellt transiente Werte wieder her
 
-"unbind"?
+------------------------
+Plan für 10.02.2010: (Dieter)
+wie wär's wenn wir uns beim nächsten Mal um die Abbildung der Relationen im PM kümmern?
+Also in unserem Beispiel um die Book : Author Beziehung (die wir noch auf n:m ausbauen könnten)
+
+Ich würde gerne den PM-Kern einigermassen vollständig machen (mit Remoting) bevor wir uns dann wieder um eine coole Visualisierung kümmern.
+
+Weitere Themen:
+- Mehrfachselektion
+- Zurückschreiben auf die DomainObjects / Persistierung
+- "Reload" der Domain Objects
+- Remoting
+- Push von neuen Informationen
+- Validierung der PMs
+
+(Dierk)
+- StoreEvent sollten wir von den GORM instanz-methoden aus feuern.
+- Store sollte nur Kopien der Listen herausgeben.
+- die Validierung würde ich früher angehen - zumindest die "client"-seitige.
+------------------------

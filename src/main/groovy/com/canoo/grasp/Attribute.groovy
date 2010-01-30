@@ -20,5 +20,4 @@ class Attribute implements IAttribute {
 
     def getModelValue() { model[propertyName] }
 
-
 }

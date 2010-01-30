@@ -1,4 +1,3 @@
 package com.canoo.grasp
 
-interface IAttribute {
-}
+interface IAttribute { }

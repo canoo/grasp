@@ -3,7 +3,7 @@ package com.canoo.grasp
 import groovy.beans.Bindable
 import java.beans.PropertyChangeListener
 
-class ProxyAttribute implements IAttribute {
+class AttributeSwitch implements IAttribute {
 
     private Attribute attribute
     private relay = true // do not relay the attribute value change if we triggered it ourselves

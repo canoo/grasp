@@ -50,7 +50,7 @@ class GraspContext {
             return view
         }
 
-        Object.metaClass.syncWith = {ProxyPresentationModel pm ->
+        Object.metaClass.syncWith = {PresentationModelSwitch pm ->
             JTable table = delegate
             DefaultTableModel model = table.model
 
@@ -69,13 +69,13 @@ class GraspContext {
                 int row = table.selectedRow
                 model.fireTableRowsUpdated row, row
             }
-            pm.proxyAttributePerName.values().each {ProxyAttribute att ->
+            pm.proxyAttributePerName.values().each {AttributeSwitch att ->
                 att.addPropertyChangeListener detailChangedListener as PropertyChangeListener
             }
 
         }
 
-        Object.metaClass.onSwitch = {ProxyPresentationModel pm, Closure callback=null ->
+        Object.metaClass.onSwitch = {PresentationModelSwitch pm, Closure callback=null ->
             def caller = delegate
             callback = callback ?: {it.enabled = pm.available() }
             def onSelectedPMChanged = { e -> callback caller }

@@ -6,7 +6,7 @@ class ProxyAttributeTest extends GroovyTestCase {
 
     void testDelegation() {
         Attribute attribute = new Attribute([a: 1], 'a', 'prefix')
-        ProxyAttribute proxy = new ProxyAttribute(attribute: attribute)
+        AttributeSwitch proxy = new AttributeSwitch(attribute: attribute)
         assertEquals 1, attribute.propertyChangeListeners.size()
 
         int callCount = 0

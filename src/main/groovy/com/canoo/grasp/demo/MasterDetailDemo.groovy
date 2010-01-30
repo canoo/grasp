@@ -1,7 +1,7 @@
 package com.canoo.grasp.demo
 
 import com.canoo.grasp.GraspContext
-import com.canoo.grasp.ProxyPresentationModel
+import com.canoo.grasp.PresentationModelSwitch
 import com.canoo.grasp.Store
 import com.canoo.grasp.demo.domain.Book
 import groovy.swing.SwingBuilder
@@ -18,7 +18,7 @@ Store store = new Store()
 }
 
 List list = BookPM.list()
-def selectedBook = new ProxyPresentationModel(new BookPM())
+def selectedBook = new PresentationModelSwitch(new BookPM())
 
 def master
 SwingBuilder builder = new SwingBuilder()

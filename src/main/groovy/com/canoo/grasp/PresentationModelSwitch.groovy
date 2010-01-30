@@ -2,17 +2,17 @@ package com.canoo.grasp
 
 import groovy.beans.Bindable
 
-class ProxyPresentationModel extends PresentationModel {
+class PresentationModelSwitch extends PresentationModel {
 
     @Bindable PresentationModel adaptee
-    final Map<String, ProxyAttribute> proxyAttributePerName = [:] // propname to proxyAttribute
+    final Map<String, AttributeSwitch> proxyAttributePerName = [:] // propname to proxyAttribute
 
     private final PresentationModel defaultPM // in use when no real adaptee is set
 
     /**
      * @param defaultPM.model may be null
      */
-    ProxyPresentationModel(PresentationModel defaultPM) {
+    PresentationModelSwitch(PresentationModel defaultPM) {
         this.defaultPM = defaultPM
         setAdaptee defaultPM
     }
@@ -26,7 +26,7 @@ class ProxyPresentationModel extends PresentationModel {
         adaptee = newAdaptee // don't make this the last statement or bindable will remove it!
         newAdaptee.properties.each {key, attribute ->
             if (key in 'class metaClass id version'.tokenize()) return
-            def proxyAttribute = proxyAttributePerName.get(key, new ProxyAttribute())
+            def proxyAttribute = proxyAttributePerName.get(key, new AttributeSwitch())
             attribute = attribute ?: new Attribute([:], key, newAdaptee.getClass().name) // for attributes without model 
             proxyAttribute.attribute = attribute
         }

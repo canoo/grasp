@@ -1,0 +1,26 @@
+Ziele:
+
+- crud operationen führen zu einem sofortigen update der views
+- unabhängige views
+- meta-informationen werden im Presentation Model (PM) geteilt (nicht im view)
+  Bsp: dirty (pro property), nullable
+- PM enthält n Attribute
+- Attribut enthält
+  Properties dirty, transientValue, persistentValue, enabled, visible, <propertyname>, (typemarker?)... ,
+- GORM constraints im Attribut verfügbar
+
+- view:pm = m:n
+- pm:attribut = 1:n
+
+- Binding:
+  möglichst einfach :-)
+  view -> pm
+
+- "mini app"
+  AttributEditor
+  verwendbar in mehreren container views
+
+x UI nach Client Shutdown wiederherstellbar, neue connection stellt altes UI wieder her (gestrichen)
+- re-connect stellt transiente Werte wieder her
+
+"unbind"?

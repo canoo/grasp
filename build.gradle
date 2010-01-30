@@ -1,0 +1,9 @@
+defaultTasks = ['test']
+usePlugin 'groovy'
+
+repositories { mavenCentral() }
+
+dependencies {
+    groovy      "org.codehaus.groovy:groovy-all:1.7.0"
+    testCompile "junit:junit:4.7"
+}

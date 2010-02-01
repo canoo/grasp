@@ -25,16 +25,23 @@ class Store {
 
     void save(PresentationModel pm) {
         Class clazz = pm.class
-        List knownPMs = pmListPerClass.get(clazz, [] )
+        List knownPMs = pmListPerClass.get(clazz, [])
         if (!knownPMs) {
             mockDomain(clazz) // add static methods if not already done
         }
-        if (! (pm in knownPMs)) {
+        if (!(pm in knownPMs)) {
             addDynamicInstanceMethods pm
             knownPMs.add pm
-            if (!pm.id) pm.id = knownPMs.id.max() + 1 // id generator
+            if (!pm.id) pm.id = knownPMs.id.max() + 1 // id generator // todo start with hashcode, find next available
+            for (listener in listenersPerClass[clazz]) listener.added(pm)
         }
     }
+
+    void delete(PresentationModel pm) {
+        pmListPerClass[pm.class]?.remove pm
+        for (listener in listenersPerClass[pm.class]) listener.deleted pm
+    }
+
 
     void mockDomain(Class clazz) {
         addDynamicFinders(clazz)
@@ -44,20 +51,20 @@ class Store {
     }
 
 
-    private  void addDynamicFinders(Class clazz) {
+    private void addDynamicFinders(Class clazz) {
         // Implement the dynamic class methods for domain classes.
 
-        clazz.metaClass.'static'.findAll = {->
-            return pmListPerClass[clazz]
+        clazz.metaClass.static.findAll = {->
+            pmListPerClass[clazz]?.clone()
         }
 
-        clazz.metaClass.'static'.findAllWhere = {args = [:] ->
+        clazz.metaClass.static.findAllWhere = {args = [:] ->
             pmListPerClass[clazz].findAll {instance ->
                 args.every {k, v -> instance[k] == v }
             }
         }
 
-        clazz.metaClass.'static'.methodMissing = {method, args ->
+        clazz.metaClass.static.methodMissing = {method, args ->
             def m = method =~ /^find(All)?By${DYNAMIC_FINDER_RE}$/
             if (m) {
                 def field = Introspector.decapitalize(m[0][2])
@@ -130,7 +137,7 @@ class Store {
     /**
      * Adds methods that mock the behavior of the count() methods
      */
-    private  void addCountMethods(Class clazz) {
+    private void addCountMethods(Class clazz) {
         clazz.metaClass.static.count = {->
             return pmListPerClass[clazz].size()
         }
@@ -140,31 +147,33 @@ class Store {
         def pms = pmListPerClass[clazz]
 
         // First get()...
-        clazz.metaClass.'static'.get = { id ->
+        clazz.metaClass.static.get = {id ->
             return pms.find { it.id == id }
         }
     }
 
-    private  void addListMethod(Class clazz) {
-        clazz.metaClass.'static'.list = { ->
-            return pmListPerClass[clazz]
+    private void addListMethod(Class clazz) {
+        clazz.metaClass.static.list = {->
+            pmListPerClass[clazz]?.clone()
         }
     }
 
 
-    private  void addDynamicInstanceMethods(PresentationModel pm) {
+
+
+    private void addDynamicInstanceMethods(PresentationModel pm) {
+
+        if (pm.respondsTo("delete")) return
         Class clazz = pm.getClass()
-        // Add delete() method.
-        clazz.metaClass.delete = { ->
-            pmListPerClass[clazz].remove(pm)
-        }
+
+        clazz.metaClass.delete = {-> this.delete  delegate }
     }
 
     /**
      * Badly named method that filters a list of objects using the
      * "findBy()" comparators such as "IsNull", "GreaterThan", etc.
      */
-    private  processInstances(instances, property, comparator, args) {
+    private processInstances(instances, property, comparator, args) {
         def result = []
         instances.each {record ->
             def propValue = record."${property}".value
@@ -221,7 +230,7 @@ class Store {
         return result
     }
 
-    private  int getArgCountForComparator(String comparator) {
+    private int getArgCountForComparator(String comparator) {
         if (comparator == "Between") {
             return 2
         }
@@ -247,4 +256,11 @@ class Store {
         return result
     }
 
+    void addStoreListener(Class pmClass, IStoreListener storeListener) {
+        listenersPerClass.get(pmClass, []) << storeListener // allows double entries 
+    }
+
+    void removeStoreListener(Class pmClass, IStoreListener storeListener) {
+        listenersPerClass[pmClass]?.remove storeListener
+    }
 }

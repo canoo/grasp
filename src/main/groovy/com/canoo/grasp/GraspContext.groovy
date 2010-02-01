@@ -13,7 +13,7 @@ class GraspContext {
     private static List defaultPropnames = 'title value text'.tokenize()
     private static Map defaultConversion = [read: {it}, write: {it}]
 
-    static useBinding() {
+    static useBinding(Store store) {
         //todo dk: reset EMC after use...
         // MetaMethod before = Object.metaClass.getMetaMethod("methodMissing", [String, Object] as Class[])
 
@@ -73,6 +73,21 @@ class GraspContext {
                 att.addPropertyChangeListener detailChangedListener as PropertyChangeListener
             }
 
+        }
+
+        Object.metaClass.syncList = { Class pmClass ->
+            JTable table = delegate
+            DefaultTableModel model = table.model
+
+            def update = [
+                added: { pm ->
+                    model.rows << pm
+                    int idx = model.rows.size() - 1
+                    model.fireTableRowsInserted idx, idx
+                },
+                deleted: { pm -> model.rows.remove pm; model.fireTableDataChanged() }
+            ] as IStoreListener
+            store.addStoreListener pmClass, update
         }
 
         Object.metaClass.onSwitch = {PresentationModelSwitch pm, Closure callback=null ->

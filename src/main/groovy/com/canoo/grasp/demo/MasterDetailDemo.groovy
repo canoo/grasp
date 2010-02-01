@@ -8,8 +8,8 @@ import groovy.swing.SwingBuilder
 import static javax.swing.ListSelectionModel.SINGLE_SELECTION
 import static javax.swing.WindowConstants.EXIT_ON_CLOSE
 
-GraspContext.useBinding()
 Store store = new Store()
+GraspContext.useBinding(store)
 
 ["Groovy in Action", "Griffon in Action", "Grails in Action"].each {
     Book book = new Book(title: it, isbn: "0123456789")
@@ -37,6 +37,7 @@ def frame = builder.frame(defaultCloseOperation: EXIT_ON_CLOSE) {
                 }
             }
             master.syncWith selectedBook
+            master.syncList BookPM
         }
         hstrut 20
         label selectedBook.title.description
@@ -48,7 +49,6 @@ def frame = builder.frame(defaultCloseOperation: EXIT_ON_CLOSE) {
             button label: "new", actionPerformed: {
                 BookPM newPM = new BookPM(model: new Book(title: 'new'))
                 store.save newPM
-                master.model.fireTableRowsInserted list.size()-1, list.size()-1 // todo: avoid dependency
                 selectedBook.adaptee = newPM
             }
             button("remove", actionPerformed: { selectedBook.delete() }).onSwitch selectedBook //todo: not reliable

@@ -29,8 +29,7 @@ class StoreTest extends GroovyTestCase {
         store.save pm
         store.addStoreListener TestPM, listener
         deleted = null
-        //pm.delete() // todo dk: no idea why this doesn't work
-        store.delete pm
+        pm.delete()
         assert deleted == pm
         assert TestPM.list() == []
     }

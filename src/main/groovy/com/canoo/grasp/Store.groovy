@@ -30,24 +30,25 @@ class Store {
             mockDomain(clazz) // add static methods if not already done
         }
         if (!(pm in knownPMs)) {
-            addDynamicInstanceMethods pm
+            //addDynamicInstanceMethods pm // does not work for unknown reason, relay over static method
             knownPMs.add pm
             if (!pm.id) pm.id = knownPMs.id.max() + 1 // id generator // todo start with hashcode, find next available
             for (listener in listenersPerClass[clazz]) listener.added(pm)
         }
     }
 
-    void delete(PresentationModel pm) {
+    void delete(PresentationModel pm) { // todo dk: think about deleting all references to that instance
         pmListPerClass[pm.class]?.remove pm
         for (listener in listenersPerClass[pm.class]) listener.deleted pm
     }
 
 
     void mockDomain(Class clazz) {
-        addDynamicFinders(clazz)
-        addGetMethods(clazz)
-        addCountMethods(clazz)
-        addListMethod(clazz)
+        addDynamicFinders clazz
+        addGetMethods clazz
+        addCountMethods clazz
+        addListMethod clazz
+        addDeleteMethod clazz
     }
 
 
@@ -158,15 +159,12 @@ class Store {
         }
     }
 
-
-
+    private void addDeleteMethod(Class clazz) {
+        clazz.metaClass.static.delete = {pm-> owner.delete  pm }
+    }
 
     private void addDynamicInstanceMethods(PresentationModel pm) {
-
-        if (pm.respondsTo("delete")) return
-        Class clazz = pm.getClass()
-
-        clazz.metaClass.delete = {-> this.delete  delegate }
+        // this somehow doesn't seem to work, so we go over static ones...
     }
 
     /**

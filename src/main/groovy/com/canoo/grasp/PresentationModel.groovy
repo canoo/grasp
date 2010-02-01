@@ -18,4 +18,9 @@ class PresentationModel {
         }
     }
 
+    // only for the moment to allow instance delete method
+    void delete() {
+        getClass().delete this // relay over dynamic static method
+    }
+
 }

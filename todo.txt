@@ -41,7 +41,14 @@ Weitere Themen:
 - Validierung der PMs
 
 (Dierk)
-- StoreEvent sollten wir von den GORM instanz-methoden aus feuern.
-- Store sollte nur Kopien der Listen herausgeben.
 - die Validierung würde ich früher angehen - zumindest die "client"-seitige.
 ------------------------
+
+----
+done:
+----
+- StoreEvent nur von den GORM instanz-methoden aus feuern. (ausser save())
+- Store gibt nur Kopien der Listen zurück.
+- deklaratives Binden von Tables an PM Klassen mit default added/deleted Notifikation
+- deklaratives bidirektionales Binden an einen Switch
+- deklaratives bidirektionales Binden der Attribute an Views

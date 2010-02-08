@@ -17,10 +17,4 @@ class PresentationModel {
             this[key] = new Attribute(model, key, this.getClass().name)
         }
     }
-
-    // only for the moment to allow instance delete method
-    void delete() {
-        getClass().delete this // relay over dynamic static method
-    }
-
 }

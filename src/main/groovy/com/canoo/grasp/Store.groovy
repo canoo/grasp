@@ -6,6 +6,10 @@ import java.beans.Introspector
 
 class Store {
 
+    {
+        ExpandoMetaClass.enableGlobally() // needed to allow change of metaClass on old pm instances
+    }
+
     static final COMPARATORS = Collections.unmodifiableList([
             "IsNull",
             "IsNotNull",
@@ -27,10 +31,10 @@ class Store {
         Class clazz = pm.class
         List knownPMs = pmListPerClass.get(clazz, [])
         if (!knownPMs) {
-            mockDomain(clazz) // add static methods if not already done
+            mockDomain clazz  // add static methods if not already done
         }
         if (!(pm in knownPMs)) {
-            //addDynamicInstanceMethods pm // does not work for unknown reason, relay over static method
+            addDynamicInstanceMethods pm
             knownPMs.add pm
             if (!pm.id) pm.id = knownPMs.id.max() + 1 // id generator // todo start with hashcode, find next available
             for (listener in listenersPerClass[clazz]) listener.added(pm)
@@ -48,7 +52,6 @@ class Store {
         addGetMethods clazz
         addCountMethods clazz
         addListMethod clazz
-        addDeleteMethod clazz
     }
 
 
@@ -159,12 +162,12 @@ class Store {
         }
     }
 
-    private void addDeleteMethod(Class clazz) {
-        clazz.metaClass.static.delete = {pm-> owner.delete  pm }
+    private void addDeleteMethod(PresentationModel pm) {
+        pm.class.metaClass.delete = {-> owner.delete  pm }
     }
 
     private void addDynamicInstanceMethods(PresentationModel pm) {
-        // this somehow doesn't seem to work, so we go over static ones...
+        addDeleteMethod pm
     }
 
     /**

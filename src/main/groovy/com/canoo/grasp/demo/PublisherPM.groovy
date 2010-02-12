@@ -6,5 +6,5 @@ import com.canoo.grasp.PresentationModel
 class PublisherPM extends PresentationModel {
     Attribute name
 
-    String toString() {name.value + ' '+hashCode()}
+    String toString() {'PublisherPM ' + name?.value + ' '+ hashCode() }
 }

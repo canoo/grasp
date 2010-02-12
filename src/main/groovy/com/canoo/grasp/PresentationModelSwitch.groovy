@@ -27,6 +27,18 @@ class PresentationModelSwitch extends PresentationModel {
         newAdaptee.properties.each {key, attribute ->
             if (key in 'class metaClass id version'.tokenize()) return
             if (attribute in PresentationModelSwitch) return
+
+            /* // todo dk: check whether we need this...
+
+                        if (attribute in PresentationModelSwitch) { // we have reference, so update it
+                def newPM = attribute.adaptee.getClass().newInstance()
+                if(attribute.model) newPM.model = attribute.model
+                attribute.adaptee = newPM
+                return
+            }
+             */
+
+
             def proxyAttribute = proxyAttributePerName.get(key, new AttributeSwitch())
             attribute = attribute ?: new Attribute([:], key, newAdaptee.getClass().name) // for attributes without model 
             proxyAttribute.attribute = attribute

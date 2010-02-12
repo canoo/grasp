@@ -1,5 +1,7 @@
 package com.canoo.grasp
 
+import com.canoo.grasp.demo.PublisherPM
+
 class PresentationModel {
 
     long id
@@ -13,7 +15,12 @@ class PresentationModel {
      */
     void setModel(Object model) {
         properties.each { key, value ->
-            if (value) return
+            if (value in PresentationModelSwitch) {
+                def newPM = value.adaptee.getClass().newInstance()
+                newPM.model = model[key]
+                value.adaptee = newPM
+                return
+            }
             if (key in 'class metaClass id version'.tokenize()) return
             this[key] = new Attribute(model, key, this.getClass().name)
         }

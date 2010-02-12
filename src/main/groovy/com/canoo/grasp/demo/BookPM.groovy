@@ -8,5 +8,5 @@ class BookPM extends PresentationModel {
     Attribute title, author, isbn
     PresentationModelSwitch publisher = new PresentationModelSwitch(new PublisherPM())
 
-    String toString() {title.value + ' '+hashCode()}
+    String toString() {"BookPM " + title?.value + ' '+hashCode()}
 }

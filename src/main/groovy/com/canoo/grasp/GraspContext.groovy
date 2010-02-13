@@ -23,16 +23,9 @@ class GraspContext {
             def view = delegate
 
             def update = { PropertyChangeEvent e ->
-                println "adaptee changed"
-                def x = e.newValue
-                println x.name
-                println pmRef.publisher
-                def y = target(x)
-                println "$x , $y"
-                //view.bind target(e.newValue)
+                view.bind target(e.newValue)
             }
             pmRef.addPropertyChangeListener "adaptee", update as PropertyChangeListener
-
         }
 
         Object.metaClass.bind = {IAttribute attribute ->
@@ -92,9 +85,7 @@ class GraspContext {
                     att.addPropertyChangeListener detailChangedListener as PropertyChangeListener
                     return
                 }
-                println '*** '+att
             }
-
         }
 
         Object.metaClass.syncList = { Class pmClass ->

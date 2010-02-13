@@ -47,7 +47,7 @@ class PresentationModelTest extends GroovyTestCase {
 
         assert referringPM.presentationModelReference.attribute.value == value
 
-        // todo dk: in the course of this setting, which listeners have been fired?
+        // todo dk: in the course of this setting, which listeners have been notified?
 
     }
 

@@ -27,12 +27,16 @@ class PresentationModelSwitch extends PresentationModel {
         newAdaptee.properties.each {key, attribute ->
             if (key in 'class metaClass id version'.tokenize()) return
 
+            // todo dk: this needs testing!
             if (attribute in PresentationModelSwitch) { // we have reference, so update it
-                def newPM = attribute.adaptee.getClass().newInstance()
-                def proxyAttribute = proxyAttributePerName.get(key, attribute)
-                if (attribute.model) newPM.model = attribute.model
-                proxyAttribute.adaptee = newPM
-                println "have set"
+                PresentationModelSwitch reference = attribute
+                def switcher = proxyAttributePerName[key]
+                if (switcher){
+                    switcher.adaptee = reference.adaptee
+                } else {
+                    proxyAttributePerName[key] = reference
+                }
+                // println "PresentationModelSwitch.setAdaptee $key = $reference"
                 return
             }
 

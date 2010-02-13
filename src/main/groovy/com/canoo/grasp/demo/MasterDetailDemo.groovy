@@ -12,9 +12,9 @@ import static javax.swing.WindowConstants.EXIT_ON_CLOSE
 Store store = new Store()
 GraspContext.useBinding(store)
 
-["Groovy in Action", "Griffon in Action", "Grails in Action"].each {
-    final Publisher publisher = new Publisher(name: "Manning")
-    Book book = new Book(title: it, isbn: "0123456789", publisher: publisher)
+["Groovy in Action", "Griffon in Action", "Grails in Action"].eachWithIndex { it, idx ->
+    final Publisher publisher = new Publisher(name: "Manning $idx")
+    Book book = new Book(title: it, isbn: "0123456789-$idx", publisher: publisher)
     BookPM bookPM = new BookPM(model: book)
     store.save bookPM
 }

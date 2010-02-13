@@ -3,18 +3,18 @@ package com.canoo.grasp
 class StoreTest extends GroovyTestCase {
 
     Store store = new Store()
-    PresentationModel pm = new TestPM(model: [attribute: 'value'])
+    PresentationModel pm = new OneSimpleAttributePM(model: [attribute: 'value'])
 
     void testSaveAndFind() {
         store.save pm
-        assertEquals 1, TestPM.count()
-        assertSame pm, TestPM.findByAttribute('value')
+        assertEquals 1, OneSimpleAttributePM.count()
+        assertSame pm, OneSimpleAttributePM.findByAttribute('value')
     }
 
     void testStoreListenerOnSave(){
         def found
         def listener = [added:{found = it}] as IStoreListener
-        store.addStoreListener TestPM, listener
+        store.addStoreListener OneSimpleAttributePM, listener
         store.save pm
         assert found == pm
 
@@ -27,24 +27,20 @@ class StoreTest extends GroovyTestCase {
         def deleted
         def listener = [deleted:{deleted = it}] as IStoreListener
         store.save pm
-        store.addStoreListener TestPM, listener
+        store.addStoreListener OneSimpleAttributePM, listener
         deleted = null
         pm.delete()
         assert deleted == pm
-        assert TestPM.list() == []
+        assert OneSimpleAttributePM.list() == []
     }
 
     void testRemoveStoreListener(){
         def found
         def listener = [added:{found = it}] as IStoreListener
-        store.addStoreListener TestPM, listener
-        store.removeStoreListener TestPM, listener
+        store.addStoreListener OneSimpleAttributePM, listener
+        store.removeStoreListener OneSimpleAttributePM, listener
         store.save pm
         assert found == null
     }
 
-}
-
-class TestPM extends PresentationModel {
-    Attribute attribute
 }

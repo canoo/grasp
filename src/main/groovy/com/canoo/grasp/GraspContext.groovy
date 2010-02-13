@@ -2,6 +2,7 @@ package com.canoo.grasp
 
 import groovy.model.DefaultTableModel
 import java.beans.PropertyChangeListener
+import java.beans.PropertyChangeEvent
 import javax.swing.JTable
 
 class GraspContext {
@@ -16,6 +17,16 @@ class GraspContext {
     static useBinding(Store store) {
         //todo dk: reset EMC after use...
         // MetaMethod before = Object.metaClass.getMetaMethod("methodMissing", [String, Object] as Class[])
+
+        Object.metaClass.bind = { PresentationModelSwitch pmRef, Closure target ->
+            println pmRef
+            def view = delegate
+
+            def update = { PropertyChangeEvent e ->
+                view.bind target(e.newValue)
+            }
+            pmRef.addPropertyChangeListener "adaptee", update as PropertyChangeListener
+        }
 
         Object.metaClass.bind = {IAttribute attribute ->
             delegate.bind(Collections.EMPTY_MAP, attribute)
@@ -69,10 +80,12 @@ class GraspContext {
                 int row = table.selectedRow
                 model.fireTableRowsUpdated row, row
             }
-            pm.proxyAttributePerName.values().each {AttributeSwitch att ->
-                att.addPropertyChangeListener detailChangedListener as PropertyChangeListener
+            pm.proxyAttributePerName.values().each { att ->
+                if (att in AttributeSwitch){
+                    att.addPropertyChangeListener detailChangedListener as PropertyChangeListener
+                    return
+                }
             }
-
         }
 
         Object.metaClass.syncList = { Class pmClass ->

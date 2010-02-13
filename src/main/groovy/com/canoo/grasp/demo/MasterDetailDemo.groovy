@@ -4,6 +4,7 @@ import com.canoo.grasp.GraspContext
 import com.canoo.grasp.PresentationModelSwitch
 import com.canoo.grasp.Store
 import com.canoo.grasp.demo.domain.Book
+import com.canoo.grasp.demo.domain.Publisher
 import groovy.swing.SwingBuilder
 import static javax.swing.ListSelectionModel.SINGLE_SELECTION
 import static javax.swing.WindowConstants.EXIT_ON_CLOSE
@@ -11,8 +12,9 @@ import static javax.swing.WindowConstants.EXIT_ON_CLOSE
 Store store = new Store()
 GraspContext.useBinding(store)
 
-["Groovy in Action", "Griffon in Action", "Grails in Action"].each {
-    Book book = new Book(title: it, isbn: "0123456789")
+["Groovy in Action", "Griffon in Action", "Grails in Action"].eachWithIndex { it, idx ->
+    final Publisher publisher = new Publisher(name: "Manning $idx")
+    Book book = new Book(title: it, isbn: "0123456789-$idx", publisher: publisher)
     BookPM bookPM = new BookPM(model: book)
     store.save bookPM
 }
@@ -34,6 +36,8 @@ def frame = builder.frame(defaultCloseOperation: EXIT_ON_CLOSE) {
                             read: {pm -> pm.isbn.value}
                     closureColumn header: "author",
                             read: {pm -> pm.author.value}
+                    closureColumn header: "publisher",
+                            read: {pm -> pm.publisher.name.value}
                 }
             }
             master.syncWith selectedBook
@@ -44,10 +48,17 @@ def frame = builder.frame(defaultCloseOperation: EXIT_ON_CLOSE) {
         textField(columns: 20).bind selectedBook.title, on: "keyReleased"
         label selectedBook.isbn.description
         textField(columns: 20).bind selectedBook.isbn, on: "keyReleased"
+
+        label selectedBook.publisher.name.description
+        textField(columns: 20).bind selectedBook.publisher, { it.name }
+
+        def publishers = ["aaa","bbb","ccc"].collect { new PublisherPM(model:new Publisher(name:it)) }
+        comboBox(items:publishers)
+
         hbox {
             button label: "top", actionPerformed: { selectedBook.adaptee = list[0] }
             button label: "new", actionPerformed: {
-                BookPM newPM = new BookPM(model: new Book(title: 'new'))
+                BookPM newPM = new BookPM(model: new Book(title: 'new', publisher: new Publisher()))
                 store.save newPM
                 selectedBook.adaptee = newPM
             }

@@ -18,7 +18,7 @@ class AttributeSwitchTest extends GroovyTestCase {
     def attachCountListener() {
         def update = { callCount++ }
         switcher.addPropertyChangeListener("value", update as PropertyChangeListener)
-        assertEquals 0, callCount
+        assert callCount == 0
     }
 
     Attribute otherDelegateWithNotification() {
@@ -30,12 +30,17 @@ class AttributeSwitchTest extends GroovyTestCase {
     }
 
     void testSwitchBehavesAsDelegate() {
+        println 'An AttributeSwitch should behave like the Attribute that it delegates to. It is a decorator.'
         assert switcher.value == switcher.attribute.value
         assert switcher.description == 'prefix.a.description'
         assert switcher.propertyName == 'a'
     }
 
     void testAttributeChangeOnSwitchNotifiesSwitchListeners() {
+        println '''When an AttributeSwitch points to a new Attribute,
+        its listeners must be notified and
+        the switch no longer listens to the value changes in the old attribute
+        but to changes in the new one.'''
         def initialAttribute = switcher.attribute
         assert initialAttribute.propertyChangeListeners.size() == 1, "only the switcher listens to attribute value changes"
 
@@ -49,6 +54,7 @@ class AttributeSwitchTest extends GroovyTestCase {
     }
 
     void testSettingNewValueOnSwitchNotifiesSwitchListeners() {
+        println 'Setting a new value through a switch must notify the switch listeners.'
         def other = otherDelegateWithNotification()
 
         def newValue = switcher.value + 1
@@ -59,6 +65,7 @@ class AttributeSwitchTest extends GroovyTestCase {
     }
 
     void testSettingNewValueOnDelegateNotifiesSwitchListeners(){
+        println 'Setting a new value on an Attribute must trigger the AttributeSwitch to notify its listeners.'
         def other = otherDelegateWithNotification()
 
         def newValue = switcher.value + 1

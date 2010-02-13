@@ -4,7 +4,10 @@ import java.beans.PropertyChangeListener
 
 class AttributeSwitchTest extends GroovyTestCase {
 
+    // todo dk: these tests should all be combined with PCLs on the _attribute_
+
     AttributeSwitch switcher
+    int callCount = 0           // for use in count listener
 
     void setUp(){
         Map model = [a: 1]
@@ -12,35 +15,56 @@ class AttributeSwitchTest extends GroovyTestCase {
         switcher = new AttributeSwitch(attribute: attribute)
     }
 
-    void testSimpleDelegation() {
-        assertEquals 1, switcher.value
-        assertEquals 'prefix.a.description', switcher.description
-    }
-
-    void testPropertyChangeListeners() {
-        def initialAttribute = switcher.attribute
-        assertEquals 1, initialAttribute.propertyChangeListeners.size()
-
-        int callCount = 0
+    def attachCountListener() {
         def update = { callCount++ }
         switcher.addPropertyChangeListener("value", update as PropertyChangeListener)
         assertEquals 0, callCount
-
-        Attribute newAttribute = new Attribute([a: 2], 'a', 'prefix')
-        switcher.attribute = newAttribute
-        assertEquals 1, callCount                                       // setting new attribute notifies listeners
-        assertEquals 2, switcher.value                                  // new value is returned
-        assertEquals 0, initialAttribute.propertyChangeListeners.size() // old listeners are removed
-        assertEquals 1, newAttribute.propertyChangeListeners.size()     // new listeners are attached
-        assertEquals 1, initialAttribute.value                          // old attribute remains unaffected
-
-        switcher.value = 3                  // set new value through switch
-        assertEquals 2, callCount           // notifies listeners
-        assertEquals 3, switcher.value      // new value is returned
-        assertEquals 3, newAttribute.value  // new value is set
-
-        newAttribute.value = 4              // set new value in attribute
-        assertEquals 3, callCount           // notifies listeners
-        assertEquals 4, switcher.value      // new value is returned
     }
+
+    Attribute otherDelegateWithNotification() {
+        int newValue = switcher.value + 1
+        def other = new Attribute([a: newValue], switcher.propertyName, null) // todo dk: shall we test that the propertyName remains constant over switches?
+        attachCountListener()
+        switcher.attribute = other              // setting new attribute notifies listeners
+        return other
+    }
+
+    void testSwitchBehavesAsDelegate() {
+        assert switcher.value == switcher.attribute.value
+        assert switcher.description == 'prefix.a.description'
+        assert switcher.propertyName == 'a'
+    }
+
+    void testAttributeChangeOnSwitchNotifiesSwitchListeners() {
+        def initialAttribute = switcher.attribute
+        assert initialAttribute.propertyChangeListeners.size() == 1, "only the switcher listens to attribute value changes"
+
+        def other = otherDelegateWithNotification()
+
+        assert callCount == 1
+        assert switcher.value == other.value
+        assert initialAttribute.propertyChangeListeners == []
+        assert other.propertyChangeListeners.size() == 1     // switch now listens to other delegate
+        assert initialAttribute.value == 1                   // old attribute remains unaffected
+    }
+
+    void testSettingNewValueOnSwitchNotifiesSwitchListeners() {
+        def other = otherDelegateWithNotification()
+
+        def newValue = switcher.value + 1
+        switcher.value = newValue                   // set new value through switch
+        assert callCount == 2                       // attribute change plus value change
+        assert switcher.value == newValue
+        assert other.value == newValue
+    }
+
+    void testSettingNewValueOnDelegateNotifiesSwitchListeners(){
+        def other = otherDelegateWithNotification()
+
+        def newValue = switcher.value + 1
+        other.value = newValue                      // set new value in attribute
+        assert callCount == 2                       // attribute change plus value change
+        assert switcher.value == newValue
+    }
+
 }

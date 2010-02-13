@@ -48,6 +48,13 @@ def frame = builder.frame(defaultCloseOperation: EXIT_ON_CLOSE) {
         textField(columns: 20).bind selectedBook.title, on: "keyReleased"
         label selectedBook.isbn.description
         textField(columns: 20).bind selectedBook.isbn, on: "keyReleased"
+
+        label selectedBook.publisher.name.description
+        textField(columns: 20).bind selectedBook.publisher, { it.name }
+
+        def publishers = ["aaa","bbb","ccc"].collect { new PublisherPM(model:new Publisher(name:it)) }
+        comboBox(items:publishers)
+
         hbox {
             button label: "top", actionPerformed: { selectedBook.adaptee = list[0] }
             button label: "new", actionPerformed: {

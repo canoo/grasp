@@ -3,10 +3,11 @@ package com.canoo.grasp.demo
 import groovy.swing.SwingBuilder
 import javax.swing.WindowConstants
 import com.canoo.grasp.demo.domain.Book
+import com.canoo.grasp.demo.domain.Publisher
 
 import com.canoo.grasp.GraspContext
 
-Book gina = new Book(title: "gina", isbn: "0123456789", author: null)
+Book gina = new Book(title: "gina", isbn: "0123456789", author: null, publisher: new Publisher(name: "publisher"))
 BookPM bookPM = new BookPM(model: gina)
 
 GraspContext.useBinding()

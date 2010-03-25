@@ -37,7 +37,10 @@ def frame = builder.frame(defaultCloseOperation: EXIT_ON_CLOSE) {
                     closureColumn header: "author",
                             read: {pm -> pm.author.value}
                     closureColumn header: "publisher",
-                            read: {pm -> pm.publisher.name.value}
+                            read: {pm -> pm.publisher.name.value} // no update trigger
+
+                    //attributeColumn editable: true, bind: {pm -> pm.title}
+                    //referenceColumn bind: {pm -> pm.publisher.name}
                 }
             }
             master.syncWith selectedBook
@@ -51,9 +54,11 @@ def frame = builder.frame(defaultCloseOperation: EXIT_ON_CLOSE) {
 
         label selectedBook.publisher.name.description
         textField(columns: 20).bind selectedBook.publisher, { it.name }
+        label selectedBook.publisher.name.description
+        textField(columns: 20).bind selectedBook.publisher, { it.name }
 
         def publishers = ["aaa","bbb","ccc"].collect { new PublisherPM(model:new Publisher(name:it)) }
-        comboBox(items:publishers)
+        comboBox(items:publishers) //todo : binden
 
         hbox {
             button label: "top", actionPerformed: { selectedBook.adaptee = list[0] }

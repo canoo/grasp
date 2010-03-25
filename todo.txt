@@ -27,21 +27,34 @@ x UI nach Client Shutdown wiederherstellbar, neue connection stellt altes UI wie
 
 ------------------------
 Plan für 10.02.2010: (Dieter)
-wie wär's wenn wir uns beim nächsten Mal um die Abbildung der Relationen im PM kümmern?
-Also in unserem Beispiel um die Book : Author Beziehung (die wir noch auf n:m ausbauen könnten)
+- wie wär's wenn wir uns beim nächsten Mal um die Abbildung der Relationen im PM kümmern?
+  - binding auf book.publisher.name funktioniert nicht
+    bsp: MasterDetailDemo: name textfield change ändert den Wert im Master view nicht.
+    Loesungsidee: "syncCol" auf der Tabelle registriert sich auf Store
 
-Ich würde gerne den PM-Kern einigermassen vollständig machen (mit Remoting) bevor wir uns dann wieder um eine coole Visualisierung kümmern.
+  - Also in unserem Beispiel um die Book : Author Beziehung (die wir noch auf n:m ausbauen könnten)
 
-Weitere Themen:
+- DateEditor als erstes Beispiel eines AttributeEditors
+
 - Mehrfachselektion
-- Zurückschreiben auf die DomainObjects / Persistierung
-- "Reload" der Domain Objects
-- Remoting
-- Push von neuen Informationen
+  Im Detail-View: Properties mit gleichen Values werden angezeigt, die anderen Felder bleiben leer. Bei Editieren werden alle selektierten Models
+  verändert.
+  Demoerweiterung: Tabelle mit Büchern + Tabelle mit Autoren, Selektion eines Buchs selektiert n Autoren und umgekehrt, eventuell filtern der zweiten
+  Tabelle
+- Filtern von Tabellen, Idee: mengenwertiges SelectedBlaPMs
+  Tabelle mit allen Büchern von Dierk (programmatisch)
+  Benutzer setzt zusätzlichen Filter
 - Validierung der PMs
+- Komplettierung der Attribute-Properties (Vorlage HECR Attribute)
+  readOnly, mandatory, syntaxRegex, evtl. Read/Write Closures, enabled, visible, errormsgCodes, ...
+- ULC-Integration
 
-(Dierk)
-- die Validierung würde ich früher angehen - zumindest die "client"-seitige.
+- Zurückschreiben auf die DomainObjects / Persistierung
+  SaveService
+- "Reload" der Domain Objects
+- Remoting serverseitiges PM-Modell
+- Push von neuen Informationen
+
 ------------------------
 
 ----

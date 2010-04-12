@@ -28,12 +28,12 @@ def frame = builder.frame(defaultCloseOperation: EXIT_ON_CLOSE) {
     vbox {
         scrollPane {
             master = table(selectionMode: SINGLE_SELECTION) {
-                tableModel(list: list) {
+                tableModel(list: list) { // todo: should be enough to bind against the PM (needs property selection)
                     closureColumn header: "title",
                             read: {pm -> pm.title.value},
                             write: {pm, value -> pm.title.value = value  }
                     closureColumn header: "isbn",
-                            read: {pm -> pm.isbn.value}
+                            read: {pm -> pm.isbn.value}  // todo: should be enough to bind against the attribute
                     closureColumn header: "author",
                             read: {pm -> pm.author.value}
                     closureColumn header: "publisher",

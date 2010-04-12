@@ -2,8 +2,6 @@ package com.canoo.grasp
 
 import java.beans.Introspector
 
-// todo dk: make sure all dynamic methods consistently return either a copy or a reference
-
 class Store {
 
     {

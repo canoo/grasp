@@ -6,7 +6,7 @@ import com.canoo.grasp.PresentationModelSwitch
 
 class BookPM extends PresentationModel {
     Attribute title, author, isbn
-    PresentationModelSwitch publisher = new PresentationModelSwitch(new PublisherPM())
+    final PresentationModelSwitch publisher = new PresentationModelSwitch(new PublisherPM())
 
     String toString() {"BookPM " + title?.value + ' '+hashCode()}
 }

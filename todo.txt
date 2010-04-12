@@ -57,6 +57,9 @@ Plan für 10.02.2010: (Dieter)
 
 ------------------------
 
+note:
+  Switch should become "Ref"
+
 ----
 done:
 ----

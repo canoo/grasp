@@ -59,6 +59,7 @@ Infrastrukture (Wenn hast du Langweile)
  - Cobertura
  - CodeNarc
  - GMetrics?
+ - create a gradlew file
 
 ------------------------
 

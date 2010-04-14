@@ -1,9 +1,14 @@
 defaultTasks = ['test']
-usePlugin 'groovy'
 
-repositories { mavenCentral() }
+apply plugin: 'groovy'
+
+repositories {
+    mavenCentral()
+    mavenRepo urls: "http://m2repo.spockframework.org/snapshots"
+}
 
 dependencies {
     groovy      "org.codehaus.groovy:groovy-all:1.7.0"
+    compile     "org.spockframework:spock-core:0.4-SNAPSHOT"
     testCompile "junit:junit:4.7"
 }

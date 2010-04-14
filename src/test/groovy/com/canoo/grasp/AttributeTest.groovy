@@ -1,13 +1,14 @@
 package com.canoo.grasp
 
 import java.beans.PropertyChangeListener
+import spock.lang.Specification
 
-class AttributeTest extends GroovyTestCase {
+class AttributeTest extends Specification {
 
     Attribute attribute
     int callCount = 0           // for use in count listener
 
-    void setUp(){
+    void setup(){
         Map model = [a: 1]
         attribute = new Attribute(model, 'a', 'prefix')
     }
@@ -18,24 +19,30 @@ class AttributeTest extends GroovyTestCase {
         assert callCount == 0
     }
 
-    void testAttributeAccess() {
-        assert attribute.value == 1
-        assert attribute.description == 'prefix.a.description'
-        assert attribute.modelValue == 1
+    def "attributes can be accessed"() {
+        expect:
+            attribute.value == 1
+            attribute.description == 'prefix.a.description'
+            attribute.modelValue == 1
     }
 
-    void testValueChangeLetsModelValueUnaffected() {
-        def oldValue = attribute.value
-        def newValue = oldValue + 1
-        attribute.value = newValue
-        assert attribute.value == newValue
-        assert attribute.modelValue == oldValue
+    def "model remains unchanged when attribute is updated"() {
+        when:
+            def oldValue = attribute.value
+            def newValue = oldValue + 1
+            attribute.value = newValue
+        then:
+            attribute.value == newValue
+            attribute.modelValue == oldValue
     }
 
-    void testValueChangeNotifiesAttachedListener() {
-        attachCountListener()
-        testValueChangeLetsModelValueUnaffected()
+    void "testValueChangeNotifiesAttachedListener"() {
+        when:
+            attachCountListener()
+            def oldValue = attribute.value
+            def newValue = oldValue + 1
+            attribute.value = newValue
+        then:
         assert callCount == 1
     }
-
 }

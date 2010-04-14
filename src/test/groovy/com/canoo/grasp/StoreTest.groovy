@@ -1,46 +1,77 @@
 package com.canoo.grasp
 
-class StoreTest extends GroovyTestCase {
+import spock.lang.Specification
+
+class StoreTest extends Specification {
 
     Store store = new Store()
     PresentationModel pm = new OneSimpleAttributePM(model: [attribute: 'value'])
 
-    void testSaveAndFind() {
-        store.save pm
-        assertEquals 1, OneSimpleAttributePM.count()
-        assertSame pm, OneSimpleAttributePM.findByAttribute('value')
+    def "find must work after save performed"() {
+        when:
+            store.save pm
+
+        then:
+            1 == OneSimpleAttributePM.count()
+            pm.is(OneSimpleAttributePM.findByAttribute('value'))
     }
 
-    void testStoreListenerOnSave(){
-        def found
-        def listener = [added:{found = it}] as IStoreListener
-        store.addStoreListener OneSimpleAttributePM, listener
-        store.save pm
-        assert found == pm
+    def "listener is notified after a save"() {
+        setup:
+            def found
+            def listener = [added:{found = it}] as IStoreListener
 
-        found = null
-        store.save pm
-        assert found == null, "no added notification when saving known objects"
+        when:
+            store.addStoreListener OneSimpleAttributePM, listener
+            store.save pm
+
+        then:
+            found == pm
     }
 
-    void testStoreListenerOnDelete(){
-        def deleted
-        def listener = [deleted:{deleted = it}] as IStoreListener
-        store.save pm
-        store.addStoreListener OneSimpleAttributePM, listener
-        deleted = null
-        pm.delete()
-        assert deleted == pm
-        assert OneSimpleAttributePM.list() == []
+    def "listener is not notified twice after two saves"(){
+
+        setup:
+            def found
+            def listener = [added:{found = it}] as IStoreListener
+
+        when:
+            store.addStoreListener OneSimpleAttributePM, listener
+            store.save pm
+            found = null
+            store.save pm
+
+        then: 
+            found == null
     }
 
-    void testRemoveStoreListener(){
-        def found
-        def listener = [added:{found = it}] as IStoreListener
-        store.addStoreListener OneSimpleAttributePM, listener
-        store.removeStoreListener OneSimpleAttributePM, listener
-        store.save pm
-        assert found == null
+    def "listener is notified on delete"(){
+        setup:
+            def deleted
+            def listener = [deleted:{deleted = it}] as IStoreListener
+
+        when:
+            store.save pm
+            store.addStoreListener OneSimpleAttributePM, listener
+            pm.delete()
+
+        then:
+            deleted == pm
+            OneSimpleAttributePM.list() == []
+    }
+
+    def "listener is not updated after being removed"(){
+        setup:
+            def found
+            def listener = [added: { found = it } ] as IStoreListener
+
+        when:
+            store.addStoreListener OneSimpleAttributePM, listener
+            store.removeStoreListener OneSimpleAttributePM, listener
+            store.save pm
+
+        then:
+            found == null
     }
 
 }

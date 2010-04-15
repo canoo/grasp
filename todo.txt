@@ -60,6 +60,7 @@ Infrastrukture (Wenn hast du Langweile)
  - CodeNarc
  - GMetrics?
  - create a gradlew file
+ - Grasp build.gradle soll IDEA datei machen (vielleicht ein Gradle Plugin?)
 
 ------------------------
 

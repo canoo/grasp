@@ -260,6 +260,7 @@ class Store {
     }
 
     void removeStoreListener(Class pmClass, IStoreListener storeListener) {
-        listenersPerClass[pmClass]?.remove storeListener
+        def object = listenersPerClass[pmClass]
+        object?.remove storeListener
     }
 }

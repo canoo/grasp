@@ -18,37 +18,35 @@ class StoreTest extends Specification {
 
     def "listener is notified after a save"() {
         setup:
-            def found
-            def listener = [added:{found = it}] as IStoreListener
+            IStoreListener listener = Mock(IStoreListener)
 
         when:
             store.addStoreListener OneSimpleAttributePM, listener
             store.save pm
 
         then:
-            found == pm
+            1 * listener.added(pm)
+            0 * listener.deleted(_)
     }
 
     def "listener is not notified twice after two saves"(){
 
         setup:
-            def found
-            def listener = [added:{found = it}] as IStoreListener
+            IStoreListener listener = Mock(IStoreListener)
 
         when:
             store.addStoreListener OneSimpleAttributePM, listener
             store.save pm
-            found = null
             store.save pm
 
         then: 
-            found == null
+            1 * listener.added(_)
+            0 * listener.deleted(_)
     }
 
     def "listener is notified on delete"(){
         setup:
-            def deleted
-            def listener = [deleted:{deleted = it}] as IStoreListener
+            IStoreListener listener = Mock(IStoreListener)
 
         when:
             store.save pm
@@ -56,22 +54,23 @@ class StoreTest extends Specification {
             pm.delete()
 
         then:
-            deleted == pm
+            0 * listener.added(_)
+            1 * listener.deleted(pm)
             OneSimpleAttributePM.list() == []
     }
 
     def "listener is not updated after being removed"(){
         setup:
-            def found
-            def listener = [added: { found = it } ] as IStoreListener
-
+            IStoreListener listener = Mock(IStoreListener)
+            listener.equals(listener) >> true
+        
         when:
             store.addStoreListener OneSimpleAttributePM, listener
             store.removeStoreListener OneSimpleAttributePM, listener
             store.save pm
 
         then:
-            found == null
+            0 * listener.added(_)
+            0 * listener.deleted(_)
     }
-
 }

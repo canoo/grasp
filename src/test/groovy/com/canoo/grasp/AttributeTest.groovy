@@ -6,17 +6,12 @@ import spock.lang.Specification
 class AttributeTest extends Specification {
 
     Attribute attribute
-    int callCount = 0           // for use in count listener
+    PropertyChangeListener changeListener
 
     void setup(){
         Map model = [a: 1]
         attribute = new Attribute(model, 'a', 'prefix')
-    }
-
-    def attachCountListener() {
-        def update = { callCount++ }
-        attribute.addPropertyChangeListener("value", update as PropertyChangeListener)
-        assert callCount == 0
+        changeListener = Mock(PropertyChangeListener)
     }
 
     def "attributes can be accessed"() {
@@ -36,13 +31,13 @@ class AttributeTest extends Specification {
             attribute.modelValue == oldValue
     }
 
-    void "testValueChangeNotifiesAttachedListener"() {
+    void "listener is notified when an attribute value changes"() {
         when:
-            attachCountListener()
+            attribute.addPropertyChangeListener("value", changeListener)
             def oldValue = attribute.value
             def newValue = oldValue + 1
             attribute.value = newValue
         then:
-        assert callCount == 1
+            1 * changeListener.propertyChange(_)
     }
 }

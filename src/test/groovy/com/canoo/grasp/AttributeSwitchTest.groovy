@@ -8,25 +8,20 @@ class AttributeSwitchTest extends Specification {
     // todo dk: these tests should all be combined with PCLs on the _attribute_
 
     AttributeSwitch switcher
-    int callCount = 0           // for use in count listener
+    PropertyChangeListener changeListenerMock
 
 
     void setup(){
         Map model = [a: 1]
         Attribute attribute = new Attribute(model, 'a', 'prefix')
         switcher = new AttributeSwitch(attribute: attribute)
-    }
-
-    def attachCountListener() {
-        def update = { callCount++ }
-        switcher.addPropertyChangeListener("value", update as PropertyChangeListener)
-        assert callCount == 0
+        changeListenerMock = Mock(PropertyChangeListener)
     }
 
     Attribute otherDelegateWithNotification() {
         int newValue = switcher.value + 1
         def other = new Attribute([a: newValue], switcher.propertyName, null) // todo dk: shall we test that the propertyName remains constant over switches?
-        attachCountListener()
+        switcher.addPropertyChangeListener("value", changeListenerMock)
         switcher.attribute = other              // setting new attribute notifies listeners
         return other
     }
@@ -49,7 +44,7 @@ class AttributeSwitchTest extends Specification {
             def other = otherDelegateWithNotification()
 
         then:
-            callCount == 1
+            1 * changeListenerMock.propertyChange(_)
             switcher.value == other.value
             initialAttribute.propertyChangeListeners == []
             other.propertyChangeListeners.size() == 1     // switch now listens to other delegate
@@ -63,7 +58,7 @@ class AttributeSwitchTest extends Specification {
             def newValue = switcher.value + 1
             switcher.value = newValue                   // set new value through switch
         then:
-            callCount == 2                       // attribute change plus value change
+            2 * changeListenerMock.propertyChange(_)    // attribute change plus value change
             switcher.value == newValue
             other.value == newValue
     }
@@ -75,7 +70,7 @@ class AttributeSwitchTest extends Specification {
             def newValue = switcher.value + 1
             other.value = newValue                      // set new value in attribute
         then:
-            callCount == 2                       // attribute change plus value change
+            2 * changeListenerMock.propertyChange(_)    // attribute change plus value change
             switcher.value == newValue
     }
 

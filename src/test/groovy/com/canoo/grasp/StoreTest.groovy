@@ -62,7 +62,7 @@ class StoreTest extends Specification {
     def "listener is not updated after being removed"(){
         setup:
             IStoreListener listener = Mock(IStoreListener)
-            listener.equals(listener) >> true
+            listener.equals(listener) >> true   // by default, two listeners are not equal to each other. 
         
         when:
             store.addStoreListener OneSimpleAttributePM, listener

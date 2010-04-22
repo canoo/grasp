@@ -1,27 +1,28 @@
 package com.canoo.grasp.demo.components
 
 import org.jdesktop.swingx.JXDatePicker
+import com.canoo.grasp.Attribute
+import java.beans.PropertyChangeListener
 
 /**
  * A Date Editor Factory. 
  */
 class DateEditorFactory extends AbstractFactory {
     
-    Object newInstance(FactoryBuilderSupport ignored, Object nodeName, Object attribute, Map map) {
-        def picker = new JXDatePicker(attribute.value)
-        picker.bind(attribute, on: "actionPerformed focusLost keyReleased", field: picker.&date)
-        if (map.locale) {
-            picker.locale = map.locale.value
-            picker.bind(map.locale,
-                    on: "actionPerformed focusLost keyReleased",
-                    field: picker.&locale,
-                    read: {
-                        println "read locale ${it.getClass()}";it
-                    },
-                    write: {
-                        println "write locale ${it.getClass()}";it
-                    }
-            )
+    Object newInstance(FactoryBuilderSupport ignored, Object name, Object value, Map map) {
+        Attribute dateAttribute = value
+        Attribute localeAttribute = map?.remove("locale")
+
+        Date date = dateAttribute.value
+
+        def picker = new JXDatePicker(date)
+        picker.addPropertyChangeListener "date", { dateAttribute.value = it.newValue} as PropertyChangeListener
+        picker.bind(dateAttribute, on: "actionPerformed focusLost keyReleased", field: picker.&date)
+
+        if (localeAttribute) {
+            Locale theLocale = localeAttribute.value
+            picker.locale = theLocale
+            picker.bind(localeAttribute, on: "actionPerformed focusLost keyReleased", field: picker.&locale)
         }
         picker
     }

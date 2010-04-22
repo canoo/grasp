@@ -10,6 +10,7 @@ import com.canoo.grasp.GraspContext
 import java.text.DateFormat
 import com.canoo.grasp.demo.components.DateEditorFactory
 import com.canoo.grasp.demo.domain.Environment
+import groovy.xml.MarkupBuilder
 
 GraspContext.useBinding()
 
@@ -34,28 +35,8 @@ def frame = builder.frame(defaultCloseOperation: WindowConstants.EXIT_ON_CLOSE, 
 
             }
             hbox {
-//                languageGroup = buttonGroup();
-//                radioButton(text:"German", buttonGroup:languageGroup, selected:true)
-//                radioButton(text:"English", buttonGroup:languageGroup)
-//                languageGroup.bind (environmentPM.locale,
-//                        on: "selectionChange",
-//                        read: {
-//                            println "read ${it.getClass()}";languageGroup.selection
-//                        },
-//                        write: {
-//                            println "write ${it.getClass()}"; it
-//                        },
-//                        field: languageGroup.&selection)
                 label "Locale: "
-                textField(columns: 10).bind(environmentPM.locale, on:"keyReleased",
-                        read: {println "read1 $it - $environmentPM.locale.value - " + environmentPM.locale.value.getClass();it},
-                        write: {println "write1 $it - $environmentPM.locale.value - " + environmentPM.locale.value.getClass();new Locale(it)})
-            }
-            hbox {
-                label "Locale: "
-                textField(columns: 10).bind(environmentPM.locale, on:"keyReleased",
-                        read: {println "read2 $it - $environmentPM.locale.value - " + environmentPM.locale.value.getClass();it},
-                        write: {println "write2 $it - $environmentPM.locale.value - " + environmentPM.locale.value.getClass();new Locale(it)})
+                textField(columns: 10).bind(environmentPM.locale, on:"keyReleased", write: { new Locale(it) })
             }
             hbox {
                 label "Date and Locale: "

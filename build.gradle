@@ -1,6 +1,7 @@
 defaultTasks = ['test']
 
 apply plugin: 'groovy'
+apply plugin: 'code-quality'
 
 repositories {
     mavenCentral()

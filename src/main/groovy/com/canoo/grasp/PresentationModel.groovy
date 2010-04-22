@@ -34,7 +34,7 @@ class PresentationModel implements Cloneable {
                     try {
                         def pmClassName =  this.getClass().getPackage().getName() + "." + property.type.getSimpleName() + "PM"
                         def pmClass = Class.forName(pmClassName)
-                        def instance = pmClass.newInstance()
+                        def instance = fetchPrototype(pmClass).clone()
                         def modelSwitch = new PresentationModelSwitch(instance)
                         emc."$fieldname" = modelSwitch
                     } catch (ClassNotFoundException e) {
@@ -84,7 +84,8 @@ class PresentationModel implements Cloneable {
             def accum = [:]
             target.properties.inject([:]) { map, entry ->
                 if (isTransientProperty(entry.key)) return map
-                def type = target.class.getDeclaredField(entry.key).type
+                MetaProperty mp = target.metaClass.getMetaProperty(entry.key) 
+                def type = mp ? mp.getProperty(target) : target.class.getDeclaredField(entry.key).type
                 if(type in PresentationModelSwitch) map[(entry.key)] = entry.value.adaptee
                 map
             }.each { key, type ->

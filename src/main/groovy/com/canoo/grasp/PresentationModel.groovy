@@ -8,7 +8,7 @@ class PresentationModel implements Cloneable {
     private static final String protoPropertyName = '_PM_PROTOYPE_'
 
     static isTransientProperty(String key) {
-        key in ["class", "metaClass", "id", "version", "_PM_PROTOYPE_"]
+        key in ["class", "metaClass", "scaffold", "id", "version", "_PM_PROTOYPE_"]
     }
 
     Object clone() {
@@ -21,6 +21,31 @@ class PresentationModel implements Cloneable {
             }
         }
         other
+    }   
+    
+    PresentationModel() {
+
+        if (properties.containsKey("scaffold")) {
+            def emc = new ExpandoMetaClass(this.getClass(), false)
+            this.scaffold.metaClass.properties.each { MetaBeanProperty property ->
+                
+                def fieldname = property.name
+                if (!(fieldname in "metaClass class".tokenize())) {
+                    try {
+                        def pmClassName =  this.getClass().getPackage().getName() + "." + property.type.getSimpleName() + "PM"
+                        def pmClass = Class.forName(pmClassName)
+                        def instance = pmClass.newInstance()
+                        def modelSwitch = new PresentationModelSwitch(instance)
+                        emc."$fieldname" = modelSwitch
+                    } catch (ClassNotFoundException e) {
+                        emc."$fieldname" = null
+                    }
+
+                }
+            }
+            emc.initialize()
+            this.metaClass = emc
+        }
     }
 
     /**

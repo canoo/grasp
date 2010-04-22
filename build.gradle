@@ -1,6 +1,7 @@
 defaultTasks = ['test']
 
 apply plugin: 'groovy'
+apply plugin: 'code-quality'
 
 repositories {
     mavenCentral()
@@ -12,3 +13,12 @@ dependencies {
     compile     "org.spockframework:spock-core:0.4-SNAPSHOT"
     testCompile "junit:junit:4.7"
 }
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '0.9-preview-1'
+    jarPath = 'wrapper'
+}
+
+// exclude task from analyzing test files
+task codenarcTest (overwrite:true)
+

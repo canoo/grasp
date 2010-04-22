@@ -35,7 +35,7 @@ class Store {
             addDynamicInstanceMethods pm
             knownPMs.add pm
             if (!pm.id) pm.id = knownPMs.id.max() + 1 // id generator // todo start with hashcode, find next available
-            for (listener in listenersPerClass[clazz]) listener.added(pm)
+            listenersPerClass[clazz]*.added(pm)
         }
     }
 

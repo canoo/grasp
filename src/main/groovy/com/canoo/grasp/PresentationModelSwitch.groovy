@@ -40,7 +40,6 @@ class PresentationModelSwitch extends PresentationModel {
     void setAdaptee(PresentationModel newAdaptee) {
         if (newAdaptee == null) newAdaptee = defaultPM
         if (newAdaptee == adaptee) return
-        def oldAdaptee = adaptee
         adaptee = newAdaptee // don't make this the last statement or bindable will remove it!
         newAdaptee.properties.each {key, attribute ->
             if (PresentationModel.isTransientProperty(key)) return

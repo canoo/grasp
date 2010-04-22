@@ -1,10 +1,28 @@
 package com.canoo.grasp
 
-class PresentationModel {
+class PresentationModel implements Cloneable {
 
     long id
     long version
 
+    private static final String protoPropertyName = '_PM_PROTOYPE_'
+
+    static isTransientProperty(String key) {
+        key in ["class", "metaClass", "scaffold", "id", "version", "_PM_PROTOYPE_"]
+    }
+
+    Object clone() {
+        def other = getClass().newInstance()
+        other.id = id
+        other.version = version
+        properties.each { key, value ->
+            if(value in [Attribute, AttributeSwitch, PresentationModelSwitch]) {
+                other[key] = value.clone()
+            }
+        }
+        other
+    }   
+    
     PresentationModel() {
 
         if (properties.containsKey("scaffold")) {
@@ -16,7 +34,7 @@ class PresentationModel {
                     try {
                         def pmClassName =  this.getClass().getPackage().getName() + "." + property.type.getSimpleName() + "PM"
                         def pmClass = Class.forName(pmClassName)
-                        def instance = pmClass.newInstance()
+                        def instance = fetchPrototype(pmClass).clone()
                         def modelSwitch = new PresentationModelSwitch(instance)
                         emc."$fieldname" = modelSwitch
                     } catch (ClassNotFoundException e) {
@@ -39,13 +57,43 @@ class PresentationModel {
     void setModel(Object model) { // todo: check. This is probably called erroneously with a PM, not a backing model...
         properties.each { key, value ->
             if (value in PresentationModelSwitch) { // todo: check (Andres)
-                def newPM = value.adaptee.getClass().newInstance()
+                def newPM = PresentationModel.fetchPrototype(value.adaptee.getClass()).clone()
                 newPM.model = model[key]
                 value.adaptee = newPM
                 return
             }
-            if (key in 'class scaffold metaClass id version'.tokenize()) return
+            if (isTransientProperty(key)) return
             this[key] = new Attribute(model, key, this.getClass().name)
         }
+    }
+
+    static PresentationModel fetchPrototype(Class clazz) {
+        assert clazz in PresentationModel
+
+        MetaClass mc = clazz.metaClass
+        MetaProperty protoProperty = mc.getMetaProperty(protoPropertyName)
+        if(protoProperty) return protoProperty.getProperty(clazz)
+        def proto = mc.respondsTo(clazz, 'prototype') ? clazz.prototype(): initializePrototype(clazz.newInstance())
+        mc."$protoPropertyName" = proto
+        return proto
+    }
+
+    static PresentationModel initializePrototype(PresentationModel pm) {
+        def inspectPm = null
+        inspectPm = {target ->
+            def accum = [:]
+            target.properties.inject([:]) { map, entry ->
+                if (isTransientProperty(entry.key)) return map
+                MetaProperty mp = target.metaClass.getMetaProperty(entry.key) 
+                def type = mp ? mp.getProperty(target) : target.class.getDeclaredField(entry.key).type
+                if(type in PresentationModelSwitch) map[(entry.key)] = entry.value.adaptee
+                map
+            }.each { key, type ->
+                accum[key] = inspectPm(type)
+            }
+            accum
+        }
+        pm.model = inspectPm(pm)
+        pm
     }
 }

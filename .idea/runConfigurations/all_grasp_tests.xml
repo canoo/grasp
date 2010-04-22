@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="all grasp tests" type="JUnit" factoryName="JUnit">
-    <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
+    <extension name="coverage" enabled="true" merge="false" sample_coverage="true" runner="idea" />
     <extension name="snapshooter" />
     <module name="Grasp" />
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />

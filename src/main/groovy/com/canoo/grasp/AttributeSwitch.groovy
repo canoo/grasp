@@ -3,7 +3,7 @@ package com.canoo.grasp
 import groovy.beans.Bindable
 import java.beans.PropertyChangeListener
 
-class AttributeSwitch implements IAttribute {
+class AttributeSwitch implements IAttribute, Cloneable {
 
     private Attribute attribute
     private relay = true // do not relay the attribute value change if we triggered it ourselves
@@ -35,4 +35,10 @@ class AttributeSwitch implements IAttribute {
 
     def getModelValue() { attribute?.modelValue }
 
+    Object clone() {
+        def other = new AttributeSwitch()
+        other.attribute = attribute?.clone()
+        other.value = value
+        other
+    }
 }

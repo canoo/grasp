@@ -13,3 +13,7 @@ dependencies {
     compile     "org.spockframework:spock-core:0.4-SNAPSHOT"
     testCompile "junit:junit:4.7"
 }
+
+// turn off codenarc test
+task codenarcTest (overwrite:true)
+

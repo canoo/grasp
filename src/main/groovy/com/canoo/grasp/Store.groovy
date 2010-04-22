@@ -35,13 +35,13 @@ class Store {
             addDynamicInstanceMethods pm
             knownPMs.add pm
             if (!pm.id) pm.id = knownPMs.id.max() + 1 // id generator // todo start with hashcode, find next available
-            for (listener in listenersPerClass[clazz]) listener.added(pm)
+            listenersPerClass[clazz]*.added(pm)
         }
     }
 
     void delete(PresentationModel pm) { // todo dk: think about deleting all references to that instance
         pmListPerClass[pm.class]?.remove pm
-        for (listener in listenersPerClass[pm.class]) listener.deleted pm
+        listenersPerClass[pm.class]*.deleted pm
     }
 
 

@@ -51,7 +51,9 @@ class PresentationModelTest extends Specification {
 
             // Now we set the model, which means the given simpleModel must be wrapped in a OneSimpleAttributePM,
             // which is then set as new adaptee of the switch
+            // println referringPM.model
             referringPM.model = [presentationModelReference: simpleModel ]
+            // println referringPM.model
 
             assert referringPM.presentationModelReference.is(initialPM), 'the switch instance remains'
     
@@ -68,5 +70,43 @@ class PresentationModelTest extends Specification {
 
     }
 
+    private static class PrototypedPM extends PresentationModel {
+        Attribute someAttribute
+        Attribute otherAttribute
+        // PresentationModelSwitch someSwitch = new PresentationModelSwitch(new OneSimpleAttributePM())
 
+        static PresentationModel prototype() {
+           def proto = new PrototypedPM(model: [someAttribute: "foo"])
+            proto
+        }
+    }
+
+    def '''All PresentationModel classes have a default protoype that is equal to
+           a no-args instance of the source class'''() {
+        when:
+            def proto = PresentationModel.fetchPrototype(OneSimpleAttributePM)
+        then:
+            proto.attribute
+            !proto.attribute.value
+    }
+
+    def '''Any PresentationModel class can override its default prototype'''() {
+        when:
+            def proto = PresentationModel.fetchPrototype(PrototypedPM)
+        then:
+            proto.someAttribute.value == "foo"
+            proto.otherAttribute
+            !proto.otherAttribute.value
+    }
+
+    def '''Prototype instances are unique per class'''() {
+        when:
+            def proto1 = PresentationModel.fetchPrototype(OneSimpleAttributePM)
+            def proto2 = PresentationModel.fetchPrototype(OneSimpleAttributePM)
+            def proto3 = PresentationModel.fetchPrototype(PrototypedPM)
+            def proto4 = PresentationModel.fetchPrototype(PrototypedPM)
+        then:
+            proto1.is(proto2)
+            proto3.is(proto4)
+    }
 }

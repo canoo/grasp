@@ -2,7 +2,7 @@ package com.canoo.grasp
 
 import groovy.beans.Bindable
 
-class Attribute implements IAttribute {
+class Attribute implements IAttribute, Cloneable {
 
     Attribute(model, String propname, String lookupPrefix) {
         this.model = model
@@ -17,7 +17,11 @@ class Attribute implements IAttribute {
     final String description
 
     @Bindable def value
+    @Bindable boolean readOnly = false
 
     def getModelValue() { model[propertyName] }
 
+    Object clone() {
+        new Attribute(model, propName, lookupPrefix)
+    }
 }

@@ -27,7 +27,7 @@ class Store {
 
     void save(PresentationModel pm) {
         Class clazz = pm.class
-        List knownPMs = pmListPerClass.get(clazz, [])
+        List knownPMs = fetchClassList(clazz)
         if (!knownPMs) {
             mockDomain clazz  // add static methods if not already done
         }
@@ -40,7 +40,7 @@ class Store {
     }
 
     void delete(PresentationModel pm) { // todo dk: think about deleting all references to that instance
-        pmListPerClass[pm.class]?.remove pm
+        fetchClassList(pm.class).remove pm
         for (listener in listenersPerClass[pm.class]) listener.deleted pm
     }
 
@@ -57,11 +57,11 @@ class Store {
         // Implement the dynamic class methods for domain classes.
 
         clazz.metaClass.static.findAll = {->
-            pmListPerClass[clazz]?.clone()
+            fetchClassList(clazz).clone()
         }
 
         clazz.metaClass.static.findAllWhere = {args = [:] ->
-            pmListPerClass[clazz].findAll {instance ->
+            fetchClassList(clazz).findAll {instance ->
                 args.every {k, v -> instance[k] == v }
             }
         }
@@ -79,7 +79,7 @@ class Store {
                 // Strip out that number of arguments from the ones
                 // we've been passed.
                 def subArgs = args[0..<numArgs]
-                def result = processInstances(pmListPerClass[clazz], field, comparator, subArgs)
+                def result = processInstances(fetchClassList(clazz), field, comparator, subArgs)
 
                 args = args[numArgs..<args.size()]
 
@@ -91,7 +91,7 @@ class Store {
                     numArgs = getArgCountForComparator(comparator)
                     subArgs = args[0..<numArgs]
 
-                    def secondResult = processInstances(pmListPerClass[clazz], field, comparator, subArgs)
+                    def secondResult = processInstances(fetchClassList(clazz), field, comparator, subArgs)
 
                     args = args[numArgs..<args.size()]
 
@@ -101,7 +101,7 @@ class Store {
                         result = intersect(result, secondResult)
                     }
                     else if (join == "Or") {
-                        result = intersect(pmListPerClass[clazz], result + secondResult)
+                        result = intersect(fetchClassList(clazz), result + secondResult)
                     }
                     else {
                         throw new RuntimeException("Unrecognised join type: '$join'")
@@ -136,17 +136,21 @@ class Store {
         }
     }
 
+    private List fetchClassList(Class clazz) {
+         pmListPerClass.get(clazz, [])
+    }
+
     /**
      * Adds methods that mock the behavior of the count() methods
      */
     private void addCountMethods(Class clazz) {
         clazz.metaClass.static.count = {->
-            return pmListPerClass[clazz].size()
+            return fetchClassList(clazz).size()
         }
     }
 
     private void addGetMethods(Class clazz) {
-        def pms = pmListPerClass[clazz]
+        def pms = fetchClassList(clazz)
 
         // First get()...
         clazz.metaClass.static.get = {id ->
@@ -156,7 +160,7 @@ class Store {
 
     private void addListMethod(Class clazz) {
         clazz.metaClass.static.list = {->
-            pmListPerClass[clazz]?.clone()
+            fetchClassList(clazz).clone()
         }
     }
 

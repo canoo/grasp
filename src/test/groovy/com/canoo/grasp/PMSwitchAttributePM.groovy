@@ -1,5 +1,5 @@
 package com.canoo.grasp
 
 class PMSwitchAttributePM extends PresentationModel {
-    PresentationModelSwitch presentationModelReference = new PresentationModelSwitch(new OneSimpleAttributePM())
+    PresentationModelSwitch presentationModelReference = new PresentationModelSwitch(new OneSimpleAttributePM(model:[attribute:2]))
 }

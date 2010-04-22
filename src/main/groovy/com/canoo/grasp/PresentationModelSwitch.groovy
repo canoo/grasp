@@ -17,15 +17,33 @@ class PresentationModelSwitch extends PresentationModel {
         setAdaptee defaultPM
     }
 
+    PresentationModel getDefaultValue() {
+        return defaultPM
+    }
+
+    Object clone() {
+        def other = getClass().getDeclaredConstructor([PresentationModel]).newInstance([defaultPM] as Object[])
+        other.id = id
+        other.version = version
+        properties.each { key, value ->
+            if(value in [Attribute, AttributeSwitch, PresentationModelSwitch]) {
+                other[key] = value.clone()
+            }
+        }
+        other.adaptee = adaptee.clone()
+        other
+    }
+
     /**
      * @param newAdaptee may be null, in which case the defaultPM is used
      */
     void setAdaptee(PresentationModel newAdaptee) {
         if (newAdaptee == null) newAdaptee = defaultPM
         if (newAdaptee == adaptee) return
+        def oldAdaptee = adaptee
         adaptee = newAdaptee // don't make this the last statement or bindable will remove it!
         newAdaptee.properties.each {key, attribute ->
-            if (key in 'class metaClass id version'.tokenize()) return
+            if (PresentationModel.isTransientProperty(key)) return
 
             // todo dk: this needs testing!
             if (attribute in PresentationModelSwitch) { // we have reference, so update it
@@ -41,9 +59,29 @@ class PresentationModelSwitch extends PresentationModel {
             }
 
             def proxyAttribute = proxyAttributePerName.get(key, new AttributeSwitch())
-            attribute = attribute ?: new Attribute([:], key, newAdaptee.getClass().name) // for attributes without model 
+            attribute = attribute ?: new Attribute([(key) : newAdaptee[key]], key, newAdaptee.getClass().name) // for attributes without model 
             proxyAttribute.attribute = attribute
         }
+
+/*        def moveListeners = null
+        moveListeners = {oldA, newA ->
+            oldA?.properties.findAll {it.value in PresentationModelSwitch}.each {key, pms ->
+                pms.proxyAttributePerName.values().each {att ->
+                    println att
+                    if (att in AttributeSwitch) {
+                        def listeners = att.getPropertyChangeListeners()
+                        listeners.each { l ->
+                            // att.removePropertyChangeListener(l)
+                            // newA[key].proxyAttributePerName[att.attribute.propertyName].addPropertyChangeListener(l)
+                        }
+                    } else if (att in PresentationModelSwitch) {
+                        // moveListeners(att, newA[key])
+                    }
+                }
+            }
+            // println "move from $oldAdaptee to $newAdaptee"
+        }
+        moveListeners(oldAdaptee, newAdaptee)*/
     }
 
     def propertyMissing(String propname) {

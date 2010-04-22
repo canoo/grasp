@@ -9,6 +9,9 @@ import groovy.swing.SwingBuilder
 import static javax.swing.ListSelectionModel.SINGLE_SELECTION
 import static javax.swing.WindowConstants.EXIT_ON_CLOSE
 
+import com.canoo.grasp.swing.PMTableFactory
+import com.canoo.grasp.swing.AttributeColumnFactory
+
 Store store = new Store()
 GraspContext.useBinding(store)
 
@@ -19,32 +22,23 @@ GraspContext.useBinding(store)
     store.save bookPM
 }
 
-List list = BookPM.list()
 def selectedBook = new PresentationModelSwitch(new BookPM())
 
-def master
 SwingBuilder builder = new SwingBuilder()
-def frame = builder.frame(defaultCloseOperation: EXIT_ON_CLOSE) {
+builder.registerFactory("pmTable", new PMTableFactory())
+builder.registerFactory("attributeColumn", new AttributeColumnFactory())
+
+builder.edt {
+  frame(pack: true, visible: true, defaultCloseOperation: EXIT_ON_CLOSE) {
     vbox {
         scrollPane {
-            master = table(selectionMode: SINGLE_SELECTION) {
-                tableModel(list: list) { // todo: should be enough to bind against the PM (needs property selection)
-                    closureColumn header: "title",
-                            read: {pm -> pm.title.value},
-                            write: {pm, value -> pm.title.value = value  }
-                    closureColumn header: "isbn",
-                            read: {pm -> pm.isbn.value}  // todo: should be enough to bind against the attribute
-                    closureColumn header: "author",
-                            read: {pm -> pm.author.value}
-                    closureColumn header: "publisher",
-                            read: {pm -> pm.publisher.name.value} // no update trigger
-
-                    //attributeColumn editable: true, bind: {pm -> pm.title}
-                    //referenceColumn bind: {pm -> pm.publisher.name}
-                }
+            pmTable(selectionMode: SINGLE_SELECTION, store: store,
+                    type: BookPM, selection: selectedBook, id: 'master') {
+                attributeColumn bind: {pm -> pm.title}, editable: false
+                attributeColumn bind: {pm -> pm.isbn}, editable: false
+                attributeColumn bind: {pm -> pm.author}, editable: false
+                attributeColumn bind: {pm -> pm.publisher.name}
             }
-            master.syncWith selectedBook
-            master.syncList BookPM
         }
         hstrut 20
         label selectedBook.title.description
@@ -55,23 +49,28 @@ def frame = builder.frame(defaultCloseOperation: EXIT_ON_CLOSE) {
         label selectedBook.publisher.name.description
         textField(columns: 20).bind selectedBook.publisher, { it.name }
         label selectedBook.publisher.name.description
-        textField(columns: 20).bind selectedBook.publisher, { it.name }
 
+        textField(columns: 20).bind selectedBook.publisher, { it.name }
         def publishers = ["aaa","bbb","ccc"].collect { new PublisherPM(model:new Publisher(name:it)) }
         comboBox(items:publishers) //todo : binden
 
         hbox {
-            button label: "top", actionPerformed: { selectedBook.adaptee = list[0] }
+            button label: "top", actionPerformed: {
+                if(master.model.rows) {
+                    selectedBook.adaptee = master.model.rows[0]
+                } else {
+                    selectedBook.adaptee = selectedBook.defaultValue
+                }
+            }
             button label: "new", actionPerformed: {
                 BookPM newPM = new BookPM(model: new Book(title: 'new', publisher: new Publisher()))
                 store.save newPM
                 selectedBook.adaptee = newPM
             }
+            //todo: FIXME!!!
             button("remove", actionPerformed: { selectedBook.delete() }).onSwitch selectedBook //todo: not reliable
 
         }
     }
+  }
 }
-
-frame.pack()
-frame.visible = true

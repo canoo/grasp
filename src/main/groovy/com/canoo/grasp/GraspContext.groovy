@@ -1,9 +1,7 @@
 package com.canoo.grasp
 
-import groovy.model.DefaultTableModel
 import java.beans.PropertyChangeListener
 import java.beans.PropertyChangeEvent
-import javax.swing.JTable
 
 class GraspContext {
 
@@ -19,7 +17,7 @@ class GraspContext {
         // MetaMethod before = Object.metaClass.getMetaMethod("methodMissing", [String, Object] as Class[])
 
         Object.metaClass.bind = { PresentationModelSwitch pmRef, Closure target ->
-            println pmRef
+            // println pmRef
             def view = delegate
 
             def update = { PropertyChangeEvent e ->
@@ -59,48 +57,6 @@ class GraspContext {
             }
             for (action in actions) { view[action] = update }
             return view
-        }
-
-        Object.metaClass.syncWith = {PresentationModelSwitch pm ->
-            JTable table = delegate
-            DefaultTableModel model = table.model
-
-            table.selectionModel.valueChanged = {
-                int row = table.selectedRow
-                pm.adaptee = (row == -1) ? null : model.rows[row] // todo dk: convert from view to row index
-            }
-            def onSelectedPMChanged = {e ->
-                def pmRowIdx = model.rows.findIndexOf { it == pm.adaptee }  // todo dk: convert from row to view index
-                // if not found, pmRowIdx==-1 and using that below works better than clearSelection()
-                table.selectionModel.setSelectionInterval pmRowIdx, pmRowIdx
-            }
-            pm.addPropertyChangeListener onSelectedPMChanged as PropertyChangeListener
-
-            def detailChangedListener = {e ->
-                int row = table.selectedRow
-                model.fireTableRowsUpdated row, row
-            }
-            pm.proxyAttributePerName.values().each { att ->
-                if (att in AttributeSwitch){
-                    att.addPropertyChangeListener detailChangedListener as PropertyChangeListener
-                    return
-                }
-            }
-        }
-
-        Object.metaClass.syncList = { Class pmClass ->
-            JTable table = delegate
-            DefaultTableModel model = table.model
-
-            def update = [
-                added: { pm ->
-                    model.rows << pm
-                    int idx = model.rows.size() - 1
-                    model.fireTableRowsInserted idx, idx
-                },
-                deleted: { pm -> model.rows.remove pm; model.fireTableDataChanged() }
-            ] as IStoreListener
-            store.addStoreListener pmClass, update
         }
 
         Object.metaClass.onSwitch = {PresentationModelSwitch pm, Closure callback=null ->

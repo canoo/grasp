@@ -6,13 +6,6 @@ import com.canoo.grasp.Store
 import java.beans.PropertyChangeListener
 import com.canoo.grasp.AttributeSwitch
 
-/**
- * Created by IntelliJ IDEA.
- * User: aalmiray
- * Date: Apr 22, 2010
- * Time: 12:21:00 AM
- * To change this template use File | Settings | File Templates.
- */
 class PMTableFactory extends AbstractFactory {
 
     private static final String TABLE_MODEL = "_TABLE_MODEL_"
@@ -47,10 +40,9 @@ class PMTableFactory extends AbstractFactory {
         applyListener = {target ->
             target.proxyAttributePerName.values().each {att ->
                 if (att in AttributeSwitch) {
-                    att.addPropertyChangeListener detailChangedListener
-                    return
+                    if(target != pm) att.addPropertyChangeListener detailChangedListener
                 } else if (att in PresentationModelSwitch) {
-                    // applyListener(att)
+                    applyListener(att)
                 }
             }
         }

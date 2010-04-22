@@ -1,19 +1,9 @@
 package com.canoo.grasp.swing
 
-import com.canoo.grasp.PresentationModelSwitch
-
 import javax.swing.table.AbstractTableModel
 import com.canoo.grasp.IStoreListener
 import com.canoo.grasp.Store
-import com.canoo.grasp.PresentationModel
 
-/**
- * Created by IntelliJ IDEA.
- * User: aalmiray
- * Date: Apr 22, 2010
- * Time: 12:23:20 AM
- * To change this template use File | Settings | File Templates.
- */
 class PMTableModel extends AbstractTableModel {
     private final Class type
     private final List source
@@ -41,6 +31,12 @@ class PMTableModel extends AbstractTableModel {
                         source.remove pm
                         fireTableRowsDeleted idx, idx
                     }
+                },
+                updated: {pm ->
+                    int idx = source.indexOf(pm)
+                    if(idx != -1) {
+                        fireTableRowsUpdated idx, idx
+                    }
                 }
         ] as IStoreListener
         store.addStoreListener type, update
@@ -67,7 +63,7 @@ class PMTableModel extends AbstractTableModel {
     }
 
     boolean isCellEditable(int rowIndex, int columnIndex) {
-        return attributeColumns[columnIndex].isEditable(source[rowIndex]);
+        attributeColumns[columnIndex].isEditable(source[rowIndex])
     }
 
     Object getValueAt(int rowIndex, int columnIndex) {

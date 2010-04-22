@@ -33,7 +33,7 @@ class AttributeColumn extends TableColumn {
     }
 
     Class type() {
-        rebind(PresentationModel.fetchPrototype(presentationModelClass)).value.getClass()
+        rebind(PresentationModel.fetchPrototype(presentationModelClass)).valueType
     }
 
     void setBind(Closure binding) {

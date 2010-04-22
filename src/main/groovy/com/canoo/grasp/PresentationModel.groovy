@@ -1,15 +1,23 @@
 package com.canoo.grasp
 
+import java.beans.PropertyChangeSupport
+import java.beans.PropertyChangeListener
+
 class PresentationModel implements Cloneable {
 
     long id
     long version
 
+    protected final PropertyChangeSupport pcs
     private static final String protoPropertyName = '_PM_PROTOYPE_'
 
     static isTransientProperty(String key) {
-        key in ["class", "metaClass", "scaffold", "id", "version", "_PM_PROTOYPE_"]
+        key in ["class", "metaClass", "scaffold", "constraints", "id", "version", "listener", "_PM_PROTOYPE_"]
     }
+
+    protected final PropertyChangeListener listener = {e ->
+        pcs.firePropertyChange(e.propertyName, e.oldValue, e.newValue)
+    } as PropertyChangeListener
 
     Object clone() {
         def other = getClass().newInstance()
@@ -24,28 +32,41 @@ class PresentationModel implements Cloneable {
     }   
     
     PresentationModel() {
+        pcs = new PropertyChangeSupport(this)
 
         if (properties.containsKey("scaffold")) {
             def emc = new ExpandoMetaClass(this.getClass(), false)
             this.scaffold.metaClass.properties.each { MetaBeanProperty property ->
-                
                 def fieldname = property.name
                 if (!(fieldname in "metaClass class".tokenize())) {
                     try {
                         def pmClassName =  this.getClass().getPackage().getName() + "." + property.type.getSimpleName() + "PM"
                         def pmClass = Class.forName(pmClassName)
                         def instance = fetchPrototype(pmClass).clone()
+                        instance.model = [:]
                         def modelSwitch = new PresentationModelSwitch(instance)
                         emc."$fieldname" = modelSwitch
                     } catch (ClassNotFoundException e) {
-                        emc."$fieldname" = null
+                        emc."$fieldname" = new Attribute([:], fieldname, this.getClass().name)
                     }
-
+                    // emc."$fieldname".addPropertyChangeListener listener
                 }
             }
             emc.initialize()
             this.metaClass = emc
         }
+    }
+
+    void addPropertyChangeListener(PropertyChangeListener l) {
+        pcs.addPropertyChangeListener l
+    }
+
+    void removePropertyChangeListener(PropertyChangeListener l) {
+        pcs.removePropertyChangeListener l
+    }
+
+    protected void firePropertyChange(String propertyName, Object oldValue, Object newValue) {
+        pcs.firePropertyChange propertyName, oldValue, newValue
     }
 
     /**
@@ -63,7 +84,9 @@ class PresentationModel implements Cloneable {
                 return
             }
             if (isTransientProperty(key)) return
+            this[key]?.removePropertyChangeListener listener
             this[key] = new Attribute(model, key, this.getClass().name)
+            this[key].addPropertyChangeListener listener
         }
     }
 

@@ -1,6 +1,7 @@
 package com.canoo.grasp
 
 import java.beans.Introspector
+import java.beans.PropertyChangeListener
 
 class Store {
 
@@ -24,6 +25,10 @@ class Store {
 
     Map pmListPerClass = [:] // class to [objects]
     Map listenersPerClass = [:] // class to [Listener]
+    private PropertyChangeListener listener = {e ->
+        listenersPerClass[e.source.getClass()]*.updated(e.source)
+    } as PropertyChangeListener
+
 
     void save(PresentationModel pm) {
         Class clazz = pm.class
@@ -36,11 +41,13 @@ class Store {
             knownPMs.add pm
             if (!pm.id) pm.id = knownPMs.id.max() + 1 // id generator // todo start with hashcode, find next available
             listenersPerClass[clazz]*.added(pm)
+            pm.addPropertyChangeListener listener
         }
     }
 
     void delete(PresentationModel pm) { // todo dk: think about deleting all references to that instance
         fetchClassList(pm.class).remove pm
+        pm.removePropertyChangeListener listener
         for (listener in listenersPerClass[pm.class]) listener.deleted pm
     }
 

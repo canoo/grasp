@@ -1,10 +1,8 @@
 package com.canoo.grasp
 
-import groovy.beans.Bindable
-
 class PresentationModelSwitch extends PresentationModel {
 
-    @Bindable PresentationModel adaptee
+    PresentationModel adaptee
     final Map<String, AttributeSwitch> proxyAttributePerName = [:] // propname to proxyAttribute
 
     private final PresentationModel defaultPM // in use when no real adaptee is set
@@ -40,6 +38,8 @@ class PresentationModelSwitch extends PresentationModel {
     void setAdaptee(PresentationModel newAdaptee) {
         if (newAdaptee == null) newAdaptee = defaultPM
         if (newAdaptee == adaptee) return
+        def oldAdaptee = adaptee
+        adaptee?.removePropertyChangeListener listener
         adaptee = newAdaptee // don't make this the last statement or bindable will remove it!
         newAdaptee.properties.each {key, attribute ->
             if (PresentationModel.isTransientProperty(key)) return
@@ -61,6 +61,8 @@ class PresentationModelSwitch extends PresentationModel {
             attribute = attribute ?: new Attribute([(key) : newAdaptee[key]], key, newAdaptee.getClass().name) // for attributes without model 
             proxyAttribute.attribute = attribute
         }
+        adaptee.addPropertyChangeListener listener
+        firePropertyChange "adaptee", oldAdaptee, newAdaptee
 
 /*        def moveListeners = null
         moveListeners = {oldA, newA ->

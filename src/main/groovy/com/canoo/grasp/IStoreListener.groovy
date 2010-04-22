@@ -5,4 +5,6 @@ interface IStoreListener {
     void added(PresentationModel pm)
 
     void deleted(PresentationModel pm)
+
+    void updated(PresentationModel pm)
 }

@@ -34,7 +34,7 @@ builder.edt {
         scrollPane {
             pmTable(selectionMode: SINGLE_SELECTION, store: store,
                     type: BookPM, selection: selectedBook, id: 'master') {
-                attributeColumn bind: {pm -> pm.title}, editable: false
+                attributeColumn bind: {pm -> pm.title}
                 attributeColumn bind: {pm -> pm.isbn}, editable: false
                 attributeColumn bind: {pm -> pm.author}, editable: false
                 attributeColumn bind: {pm -> pm.publisher.name}
@@ -47,10 +47,10 @@ builder.edt {
         textField(columns: 20).bind selectedBook.isbn, on: "keyReleased"
 
         label selectedBook.publisher.name.description
-        textField(columns: 20).bind selectedBook.publisher, { it.name }
+        textField(columns: 20).bind selectedBook.publisher.name
         label selectedBook.publisher.name.description
 
-        textField(columns: 20).bind selectedBook.publisher, { it.name }
+        textField(columns: 20).bind BookPM.list()[2].title
         def publishers = ["aaa","bbb","ccc"].collect { new PublisherPM(model:new Publisher(name:it)) }
         comboBox(items:publishers) //todo : binden
 

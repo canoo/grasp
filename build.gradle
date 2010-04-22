@@ -11,7 +11,8 @@ repositories {
 dependencies {
     groovy      "org.codehaus.groovy:groovy-all:1.7.0"
     compile     "org.spockframework:spock-core:0.4-SNAPSHOT"
-    testCompile "junit:junit:4.7"
+    testCompile "junit:junit:4.8.1"
+    testRuntime 'net.sourceforge.cobertura:cobertura:1.9.4.1'
 }
 
 task wrapper(type: Wrapper) {
@@ -22,3 +23,52 @@ task wrapper(type: Wrapper) {
 // exclude task from analyzing test files
 task codenarcTest (overwrite:true)
 
+
+/*
+Code Coverage. Eventually move to a plugin. 
+*/
+def cobSerFile="${project.buildDir}/cobertura.ser"
+def srcOriginal="${sourceSets.main.classesDir}"
+def srcCopy="${srcOriginal}-copy"
+
+test.doFirst  {
+    ant {
+        // delete data file for cobertura, otherwise coverage would be added
+        delete(file:cobSerFile, failonerror:false)
+        // delete copy of original classes
+        delete(dir: srcCopy, failonerror:false)
+        // import cobertura task, so it is available in the script
+        taskdef(resource:'tasks.properties', classpath: configurations.testRuntime.asPath)
+        // create copy (backup) of original class files
+        copy(todir: srcCopy) {
+            fileset(dir: srcOriginal)
+        }
+        // instrument the relevant classes in-place
+        'cobertura-instrument'(datafile:cobSerFile) {
+            fileset(dir: srcOriginal,
+                   includes:"com/canoo/**/*.class",
+                   excludes:"**/*Test.class")
+        }
+    }
+}
+
+test {
+    systemProperties.put("net.sourceforge.cobertura.datafile", cobSerFile)
+}
+
+test.doLast {
+    println "doing report"
+    if (new File(srcCopy).exists()) {
+        println "file exists"
+        // replace instrumented classes with backup copy again
+        ant {
+            delete(file: srcOriginal)
+            move(file: srcCopy,
+                     tofile: srcOriginal)
+        }
+        // create cobertura reports
+        ant.'cobertura-report'(destdir:"${project.buildDirName}/reports/coverage",
+             format:'html', srcdir:"src/main/java", datafile:cobSerFile)
+        println "done"
+    }
+}

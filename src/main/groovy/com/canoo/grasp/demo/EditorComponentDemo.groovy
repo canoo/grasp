@@ -9,17 +9,20 @@ import com.canoo.grasp.GraspContext
 
 import java.text.DateFormat
 import com.canoo.grasp.demo.components.DateEditorFactory
-
-Book gina = new Book(title: "gina", isbn: "0123456789", author: null, publishDate: new Date(), publisher: new Publisher(name: "publisher"))
-BookPM bookPM = new BookPM(model: gina)
+import com.canoo.grasp.demo.domain.Environment
 
 GraspContext.useBinding()
 
+Book gina = new Book(title: "gina", isbn: "0123456789", author: null, publishDate: new Date(), publisher: new Publisher(name: "publisher"))
+Environment environment = new Environment(locale: Locale.GERMAN)
+
+BookPM bookPM = new BookPM(model: gina)
+EnvironmentPM environmentPM = new EnvironmentPM(model: environment)
 
 SwingBuilder builder = new SwingBuilder()
 builder.registerFactory('dateEditor', new DateEditorFactory())
 
-def dateFormat = DateFormat.getDateInstance(DateFormat.LONG, Locale.ENGLISH)
+def dateFormat = DateFormat.getDateInstance(DateFormat.LONG, Locale.GERMAN)
 def frame = builder.frame(defaultCloseOperation: WindowConstants.EXIT_ON_CLOSE, title: "How to use an editor component") {
     panel {
         vbox {
@@ -31,14 +34,32 @@ def frame = builder.frame(defaultCloseOperation: WindowConstants.EXIT_ON_CLOSE, 
 
             }
             hbox {
+//                languageGroup = buttonGroup();
+//                radioButton(text:"German", buttonGroup:languageGroup, selected:true)
+//                radioButton(text:"English", buttonGroup:languageGroup)
+//                languageGroup.bind (environmentPM.locale,
+//                        on: "selectionChange",
+//                        read: {
+//                            println "read ${it.getClass()}";languageGroup.selection
+//                        },
+//                        write: {
+//                            println "write ${it.getClass()}"; it
+//                        },
+//                        field: languageGroup.&selection)
                 label "Locale: "
-                languageGroup = buttonGroup();
-                radioButton(text:"German", buttonGroup:languageGroup, selected:true)
-                radioButton(text:"English", buttonGroup:languageGroup)
+                textField(columns: 10).bind(environmentPM.locale, on:"keyReleased",
+                        read: {println "read1 $it - $environmentPM.locale.value - " + environmentPM.locale.value.getClass();it},
+                        write: {println "write1 $it - $environmentPM.locale.value - " + environmentPM.locale.value.getClass();new Locale(it)})
+            }
+            hbox {
+                label "Locale: "
+                textField(columns: 10).bind(environmentPM.locale, on:"keyReleased",
+                        read: {println "read2 $it - $environmentPM.locale.value - " + environmentPM.locale.value.getClass();it},
+                        write: {println "write2 $it - $environmentPM.locale.value - " + environmentPM.locale.value.getClass();new Locale(it)})
             }
             hbox {
                 label "Date and Locale: "
-                dateEditor(bookPM.publishDate/*, locale: applicationContext.locale*/)
+                dateEditor(bookPM.publishDate, locale: environmentPM.locale)
             }
         }
 

@@ -1,11 +1,34 @@
 package com.canoo.grasp
 
-import com.canoo.grasp.demo.PublisherPM
-
 class PresentationModel {
 
     long id
     long version
+
+    PresentationModel() {
+
+        if (properties.containsKey("scaffold")) {
+            def emc = new ExpandoMetaClass(this.getClass(), false)
+            this.scaffold.metaClass.properties.each { MetaBeanProperty property ->
+                
+                def fieldname = property.name
+                if (!(fieldname in "metaClass class".tokenize())) {
+                    try {
+                        def pmClassName =  this.getClass().getPackage().getName() + "." + property.type.getSimpleName() + "PM"
+                        def pmClass = Class.forName(pmClassName)
+                        def instance = pmClass.newInstance()
+                        def modelSwitch = new PresentationModelSwitch(instance)
+                        emc."$fieldname" = modelSwitch
+                    } catch (ClassNotFoundException e) {
+                        emc."$fieldname" = null
+                    }
+
+                }
+            }
+            emc.initialize()
+            this.metaClass = emc
+        }
+    }
 
     /**
      * Setting a model automatically attaches new Attribute objects to all properties of this
@@ -21,7 +44,7 @@ class PresentationModel {
                 value.adaptee = newPM
                 return
             }
-            if (key in 'class metaClass id version'.tokenize()) return
+            if (key in 'class scaffold metaClass id version'.tokenize()) return
             this[key] = new Attribute(model, key, this.getClass().name)
         }
     }

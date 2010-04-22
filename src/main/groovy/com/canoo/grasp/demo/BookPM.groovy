@@ -1,12 +1,11 @@
 package com.canoo.grasp.demo
 
 import com.canoo.grasp.PresentationModel
-import com.canoo.grasp.Attribute
-import com.canoo.grasp.PresentationModelSwitch
+import com.canoo.grasp.demo.domain.Book
 
 class BookPM extends PresentationModel {
-    Attribute title, author, isbn
-    final PresentationModelSwitch publisher = new PresentationModelSwitch(new PublisherPM())
+
+    static scaffold = Book
 
     String toString() {"BookPM " + title?.value + ' '+hashCode()}
 }

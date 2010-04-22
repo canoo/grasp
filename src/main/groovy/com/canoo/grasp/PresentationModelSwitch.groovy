@@ -25,7 +25,7 @@ class PresentationModelSwitch extends PresentationModel {
         if (newAdaptee == adaptee) return
         adaptee = newAdaptee // don't make this the last statement or bindable will remove it!
         newAdaptee.properties.each {key, attribute ->
-            if (key in 'class metaClass id version'.tokenize()) return
+            if (key in 'class metaClass id version scaffold'.tokenize()) return
 
             // todo dk: this needs testing!
             if (attribute in PresentationModelSwitch) { // we have reference, so update it

@@ -1,6 +1,5 @@
 package com.canoo.grasp
 
-import com.canoo.grasp.demo.BookPM
 import spock.lang.Specification
 
 class PresentationModelTest extends Specification {

@@ -15,6 +15,7 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="$groovy_library_name$" level="application" />
     <orderEntry type="library" name="$spock_library_name$" level="application" />
+    <orderEntry type="library" name="$swingx_library_name$" level="project" />
   </component>
 </module>
 

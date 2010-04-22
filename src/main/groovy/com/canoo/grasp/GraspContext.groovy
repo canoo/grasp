@@ -4,6 +4,7 @@ import groovy.model.DefaultTableModel
 import java.beans.PropertyChangeListener
 import java.beans.PropertyChangeEvent
 import javax.swing.JTable
+import org.codehaus.groovy.runtime.MethodClosure
 
 class GraspContext {
 
@@ -38,7 +39,11 @@ class GraspContext {
 
             def propname
             if (attribute) {                                // attribute argument given
-                propname = defaultPropnames.find { view.hasProperty(it) }
+                if (extra.field && extra.field instanceof MethodClosure) {
+                    propname = extra.field.method
+                } else {
+                    propname = defaultPropnames.find { view.hasProperty(it) }
+                }
                 assert propname, "unable to retrieve property name from $defaultPropnames for $view"
             } else {                                        // attribute supplied in map
                 propname = extra.keySet().find { extra[it] in Attribute }

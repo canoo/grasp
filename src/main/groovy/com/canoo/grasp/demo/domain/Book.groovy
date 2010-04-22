@@ -6,6 +6,7 @@ class Book {
     Author author
     String isbn
     Publisher publisher
+    Date publishDate
 
     static constraints = {
         title size:3..255

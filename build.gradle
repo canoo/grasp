@@ -5,12 +5,13 @@ apply plugin: 'code-quality'
 
 repositories {
     mavenCentral()
-    mavenRepo urls: "http://m2repo.spockframework.org/snapshots"
+    mavenRepo urls: ["http://m2repo.spockframework.org/snapshots", "http://download.java.net/maven/2/"]
 }
 
 dependencies {
     groovy      "org.codehaus.groovy:groovy-all:1.7.0"
     compile     "org.spockframework:spock-core:0.4-SNAPSHOT"
+    compile   "org.swinglabs:swingx:0.9.7"
     testCompile "junit:junit:4.8.1"
     testRuntime 'net.sourceforge.cobertura:cobertura:1.9.4.1'
 }
@@ -33,7 +34,7 @@ def srcCopy="${srcOriginal}-copy"
 
 test.doFirst  {
     ant {
-        // delete data file for cobertura, otherwise coverage would be added
+        // delete data file for Cobertura, otherwise coverage would be added
         delete(file:cobSerFile, failonerror:false)
         // delete copy of original classes
         delete(dir: srcCopy, failonerror:false)

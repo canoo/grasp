@@ -1,16 +1,13 @@
 package com.canoo.grasp.demo
 
-import groovy.swing.SwingBuilder
-import javax.swing.WindowConstants
-import com.canoo.grasp.demo.domain.Book
-import com.canoo.grasp.demo.domain.Publisher
-
 import com.canoo.grasp.GraspContext
-
-import java.text.DateFormat
 import com.canoo.grasp.demo.components.DateEditorFactory
+import com.canoo.grasp.demo.domain.Book
 import com.canoo.grasp.demo.domain.Environment
-import groovy.xml.MarkupBuilder
+import com.canoo.grasp.demo.domain.Publisher
+import groovy.swing.SwingBuilder
+import java.text.DateFormat
+import javax.swing.WindowConstants
 
 GraspContext.useBinding()
 

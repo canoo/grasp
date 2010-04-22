@@ -7,7 +7,7 @@ import java.beans.PropertyChangeListener
 /**
  * A Date Editor Factory. 
  */
-class DateEditorFactory extends AbstractFactory {
+class DateEditorFactory extends AbstractFactory implements GraspEditor {
     
     Object newInstance(FactoryBuilderSupport ignored, Object name, Object value, Map map) {
         Attribute dateAttribute = value
@@ -25,5 +25,9 @@ class DateEditorFactory extends AbstractFactory {
             picker.bind(localeAttribute, on: "actionPerformed focusLost keyReleased", field: picker.&locale)
         }
         picker
+    }
+
+    def boolean canHandle(Object value, Map attributes) {
+        (value instanceof Attribute && value.value instanceof Date)
     }
 }

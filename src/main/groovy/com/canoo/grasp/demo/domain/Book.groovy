@@ -7,6 +7,7 @@ class Book {
     String isbn
     Publisher publisher
     Date publishDate
+    boolean inPrint
 
     static constraints = {
         title size:3..255

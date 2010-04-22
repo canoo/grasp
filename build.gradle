@@ -58,9 +58,7 @@ test {
 }
 
 test.doLast {
-    println "doing report"
     if (new File(srcCopy).exists()) {
-        println "file exists"
         // replace instrumented classes with backup copy again
         ant {
             delete(file: srcOriginal)
@@ -70,6 +68,5 @@ test.doLast {
         // create cobertura reports
         ant.'cobertura-report'(destdir:"${project.buildDirName}/reports/coverage",
              format:'html', srcdir:"src/main/java", datafile:cobSerFile)
-        println "done"
     }
 }

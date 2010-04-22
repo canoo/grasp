@@ -3,7 +3,7 @@ package com.canoo.grasp.demo.components
 import com.canoo.grasp.Attribute
 
 /**
- * Todo: javadoc
+ * This object displays boolean values as check boxes.  
  */
 class BooleanEditor implements GraspEditor {
 
@@ -11,7 +11,7 @@ class BooleanEditor implements GraspEditor {
         attribute instanceof Attribute && attribute.value instanceof Boolean
     }
 
-    def Object newInstance(FactoryBuilderSupport factoryBuilderSupport, Object name, Object attribute, Map map) {
-        factoryBuilderSupport.checkBox(selected: attribute.value)
+    def Object newInstance(FactoryBuilderSupport builder, Object name, Object attribute, Map map) {
+        builder.checkBox(selected: attribute.value)
     }
 }

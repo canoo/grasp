@@ -14,6 +14,6 @@ dependencies {
     testCompile "junit:junit:4.7"
 }
 
-// turn off codenarc test
+// exclude task from analyzing test files
 task codenarcTest (overwrite:true)
 

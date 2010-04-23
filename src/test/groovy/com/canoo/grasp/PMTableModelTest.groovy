@@ -55,7 +55,7 @@ class PMTableModelTest extends Specification {
             store.save pm1
             store.save pm2
 
-            PresentationModelSwitch selection = new PresentationModelSwitch(new OneSimpleAttributePM(model: [:]))
+            PresentationModelSwitch selection = new PresentationModelSwitch(OneSimpleAttributePM)
             SwingBuilder builder = new SwingBuilder()
             builder.registerFactory("pmTable", new PMTableFactory())
             builder.registerFactory("attributeColumn", new AttributeColumnFactory())
@@ -96,8 +96,7 @@ class PMTableModelTest extends Specification {
 
             store.save pm1
             store.save pm2
-
-            PresentationModelSwitch selection = new PresentationModelSwitch(new CarPM(model:new Car()))
+            PresentationModelSwitch selection = new PresentationModelSwitch(CarPM)
 
             SwingBuilder builder = new SwingBuilder()
             builder.registerFactory("pmTable", new PMTableFactory())

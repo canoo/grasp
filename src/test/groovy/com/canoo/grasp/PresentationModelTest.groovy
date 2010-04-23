@@ -31,7 +31,7 @@ class PresentationModelTest extends Specification {
             simplePM.attribute.value == value
     }
 
-    def '''PresentationModel attributes of type "Switch" must always have a prototype value and an adaptee, even
+    def '''PresentationModel attributes of type "Switch" must always have a prototype value, even
         when a default value is not supplied and it '''() {
 
         when:
@@ -39,7 +39,7 @@ class PresentationModelTest extends Specification {
 
         then:
             assert model.presentationModelReference
-            assert model.presentationModelReference.adaptee
+            // assert model.presentationModelReference.adaptee
     }
 
     def '''PresentationModels may have attributes that are of type PresentationModelSwitch
@@ -73,7 +73,6 @@ class PresentationModelTest extends Specification {
     private static class PrototypedPM extends PresentationModel {
         Attribute someAttribute
         Attribute otherAttribute
-        // PresentationModelSwitch someSwitch = new PresentationModelSwitch(new OneSimpleAttributePM())
 
         static PresentationModel prototype() {
            def proto = new PrototypedPM(model: [someAttribute: "foo"])

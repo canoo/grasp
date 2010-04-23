@@ -4,8 +4,6 @@ import javax.swing.JTable
 import com.canoo.grasp.PresentationModelSwitch
 import com.canoo.grasp.Store
 import java.beans.PropertyChangeListener
-import com.canoo.grasp.AttributeSwitch
-import com.canoo.grasp.GraspLocale
 import javax.swing.table.DefaultTableColumnModel
 
 class PMTableFactory extends AbstractFactory {

@@ -4,8 +4,6 @@ import javax.swing.table.TableColumn
 import com.canoo.grasp.Attribute
 import com.canoo.grasp.PresentationModel
 import com.canoo.grasp.AttributeSwitch
-import com.canoo.grasp.GraspLocale
-import java.beans.PropertyChangeListener
 
 class AttributeColumn extends TableColumn {
     private Closure binding
@@ -58,6 +56,8 @@ class AttributeColumn extends TableColumn {
     }
 
     private Attribute rebind(PresentationModel pm) {
-        normalize(binding(pm))
+        Attribute attr = normalize(binding(pm))
+        assert attr, "Could not find an attribute in ${pm.getClass().name} when calling read:"
+        attr
     }
 }

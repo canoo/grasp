@@ -112,6 +112,17 @@ class PresentationModel implements Cloneable {
     }
 
     static PresentationModel initializePrototype(PresentationModel pm) {
+        try {
+            String modelClassName = pm.getClass().name - 'PM'
+            Class modelClass = modelClassName as Class
+            def model = modelClass.newInstance()
+            pm.model = model
+            return pm
+        } catch(x) {
+            // ignore
+        }
+
+        
         def inspectPm = null
         inspectPm = {target ->
             def accum = [:]

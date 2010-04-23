@@ -3,7 +3,7 @@ package com.canoo.grasp.demo.components
 import spock.lang.Specification
 import com.canoo.grasp.demo.BookPM
 import org.jdesktop.swingx.JXDatePicker
-import com.canoo.grasp.GraspContext
+import com.canoo.grasp.Grasp
 import com.canoo.grasp.demo.domain.Book
 import com.canoo.grasp.demo.domain.Publisher
 import java.text.DateFormat
@@ -18,7 +18,8 @@ class DateEditorFactoryTest extends Specification {
     def dateFormat = DateFormat.getDateInstance(DateFormat.LONG, Locale.ENGLISH)
 
     def setup() {
-        GraspContext.useBinding()
+        Grasp.initialize()
+        Grasp.useBinding()
     }
     
     def "the date editor factory should correctly create SwingX DatePicker components"() {

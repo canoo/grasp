@@ -21,19 +21,38 @@ class Attribute implements IAttribute, Cloneable {
         }
 
         GraspLocale.instance.addPropertyChangeListener("locale", listener)
-        setDescription(fetchI18NResource())
-        setLabel(fetchI18NResource('label'))
+        updateDescription(fetchI18NResource())
+        updateLabel(fetchI18NResource('label'))
     }
 
     private String fetchI18NResource(String key = 'description') {
         String resourceKey = "${lookupPrefix}.${propertyName}.${key}".toString()
-        String resource = GraspContext.lookup(resourceKey)
+        String resource = Grasp.lookup(resourceKey)
         resource != resourceKey ? resource : ""
     }
 
-    public void setLabel(String lbl) {
-        if (!lbl) lbl = propertyName[0].toUpperCase() + propertyName[1..-1]
-        this.label = lbl
+    private void updateLabel(String lbl) {
+        if (!lbl) {
+            if(this.label) {
+                return
+            } else if (propertyName.length() == 1) {
+                lbl = propertyName.toUpperCase()
+            } else {
+                lbl = propertyName[0].toUpperCase() + propertyName[1..-1]
+            }
+        }
+        setLabel(lbl)
+    }
+
+    private void updateDescription(String desc){
+        if(!desc) {
+            if(this.description) {
+                return
+            } else {
+                desc = "${lookupPrefix}.${propertyName}.description".toString()
+            }
+        }
+        setDescription(desc)
     }
 
     private model
@@ -51,7 +70,7 @@ class Attribute implements IAttribute, Cloneable {
         setLabel(fetchI18NResource('label'))
     } as PropertyChangeListener
 
-    def getModelValue() { model[propertyName] }
+    def getModelValue() { model?.getAt(propertyName) }
 
     Class getValueType() { type }
 

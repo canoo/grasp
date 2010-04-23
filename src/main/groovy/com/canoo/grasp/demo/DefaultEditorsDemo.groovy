@@ -5,13 +5,14 @@ import javax.swing.WindowConstants
 import com.canoo.grasp.demo.domain.Book
 import com.canoo.grasp.demo.domain.Publisher
 
-import com.canoo.grasp.GraspContext
+import com.canoo.grasp.Grasp
 
 import com.canoo.grasp.demo.domain.Environment
 
 import com.canoo.grasp.demo.components.GraspEditorFactory
 
-GraspContext.useBinding()
+Grasp.initialize()
+Grasp.useBinding()
 
 Book gina = new Book(title: "gina", isbn: "0123456789", author: null, publishDate: new Date(), publisher: new Publisher(name: "publisher"))
 BookPM bookPM = new BookPM(model: gina)

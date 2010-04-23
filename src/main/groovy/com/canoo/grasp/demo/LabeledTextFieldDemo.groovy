@@ -5,12 +5,14 @@ import javax.swing.WindowConstants
 import com.canoo.grasp.demo.domain.Book
 import com.canoo.grasp.demo.domain.Publisher
 
-import com.canoo.grasp.GraspContext
+import com.canoo.grasp.Grasp
 
 Book gina = new Book(title: "gina", isbn: "0123456789", author: null, publisher: new Publisher(name: "publisher"))
 BookPM bookPM = new BookPM(model: gina)
 
-GraspContext.useBinding()
+
+Grasp.initialize()
+Grasp.useBinding()
 
 SwingBuilder builder = new SwingBuilder()
 def frame = builder.frame(defaultCloseOperation: WindowConstants.EXIT_ON_CLOSE) {

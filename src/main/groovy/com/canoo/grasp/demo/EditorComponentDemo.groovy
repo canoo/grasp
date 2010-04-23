@@ -1,6 +1,6 @@
 package com.canoo.grasp.demo
 
-import com.canoo.grasp.GraspContext
+import com.canoo.grasp.Grasp
 import com.canoo.grasp.demo.components.DateEditorFactory
 import com.canoo.grasp.demo.domain.Book
 import com.canoo.grasp.demo.domain.Environment
@@ -9,7 +9,8 @@ import groovy.swing.SwingBuilder
 import java.text.DateFormat
 import javax.swing.WindowConstants
 
-GraspContext.useBinding()
+Grasp.initialize()
+Grasp.useBinding()
 
 Book gina = new Book(title: "gina", isbn: "0123456789", author: null, publishDate: new Date(), publisher: new Publisher(name: "publisher"))
 Environment environment = new Environment(locale: Locale.GERMAN)

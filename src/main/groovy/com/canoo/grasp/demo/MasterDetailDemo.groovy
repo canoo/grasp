@@ -1,6 +1,6 @@
 package com.canoo.grasp.demo
 
-import com.canoo.grasp.GraspContext
+import com.canoo.grasp.Grasp
 import com.canoo.grasp.PresentationModelSwitch
 import com.canoo.grasp.Store
 import com.canoo.grasp.demo.domain.Book
@@ -14,8 +14,9 @@ import com.canoo.grasp.swing.AttributeColumnFactory
 import com.canoo.grasp.GraspLocale
 
 Store store = new Store()
-GraspContext.useBinding(store)
-GraspContext.setupI18n()
+Grasp.initialize()
+Grasp.useBinding(store)
+Grasp.setupI18n()
 
 
 ["Groovy in Action", "Griffon in Action", "Grails in Action"].eachWithIndex { it, idx ->

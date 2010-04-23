@@ -1,7 +1,20 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        mavenRepo urls: 'https://ci.canoo.com/nexus/content/groups/public'
+    }
+
+    dependencies {
+        classpath "com.automatedlogic.gradle:gradle-idea-plugin:0.1"
+    }
+}
+
+
 defaultTasks = ['test']
 
 apply plugin: 'groovy'
 apply plugin: 'code-quality'
+apply plugin: com.automatedlogic.gradle.plugin.idea.IdeaGenerationPlugin
 
 repositories {
     mavenCentral()
@@ -10,7 +23,7 @@ repositories {
 
 dependencies {
     groovy    "org.codehaus.groovy:groovy-all:1.7.0"
-    compile   "org.spockframework:spock-core:0.4-SNAPSHOT"
+    testCompile   "org.spockframework:spock-core:0.4-SNAPSHOT"
     compile   "org.swinglabs:swingx:0.9.7"
     compile   "org.springframework:spring-context:3.0.0.RELEASE"
     compile   "org.springframework:spring-core:3.0.0.RELEASE"

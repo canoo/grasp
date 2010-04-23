@@ -1,6 +1,7 @@
 package com.canoo.grasp.demo.components
 
 import com.canoo.grasp.Attribute
+import com.canoo.grasp.Grasp
 import com.canoo.grasp.demo.domain.Errors
 import groovy.xml.MarkupBuilder
 import java.awt.Color
@@ -27,8 +28,8 @@ class ErrorsEditor implements GraspEditor {
                     def out = new StringWriter()
                     new MarkupBuilder(out).html() {
                         ul() {
-                            newValue.each { 
-                                li(it.id)
+                            newValue.each {
+                                li(Grasp.lookup(it.id))
                             }
                         }
                     }

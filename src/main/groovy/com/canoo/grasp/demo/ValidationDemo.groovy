@@ -1,6 +1,7 @@
 package com.canoo.grasp.demo
 
 import com.canoo.grasp.Grasp
+import com.canoo.grasp.GraspLocale
 import com.canoo.grasp.demo.components.GraspEditorFactory
 import com.canoo.grasp.demo.domain.Author
 import com.canoo.grasp.demo.domain.Book
@@ -12,6 +13,7 @@ import javax.swing.WindowConstants
 
 Grasp.initialize()
 Grasp.useBinding()
+Grasp.setupI18n(["com.canoo.grasp.demo.messages"] as String[])
 
 Book aBook = new Book(title: "The Singularity is Near", isbn: "0123456789", author: new Author(name: "Ray Kurzweil"), publishDate: new Date(), publisher: new Publisher(name: "New World Press"))
 BookPM bookPM = new BookPM(model: aBook)
@@ -44,10 +46,14 @@ def frame = builder.frame(defaultCloseOperation: WindowConstants.EXIT_ON_CLOSE, 
                 graspEditor(bookPM.errors)
             }
             hbox {
-                button('Create Errors', actionPerformed: {
-                    bookPM.errors.value = bookPM.errors.value + new com.canoo.grasp.demo.domain.Error(id: "error x", source: new Object())
+                button('Change Locale', actionPerformed: {
+                    if (GraspLocale.instance.locale == Locale.GERMAN) {
+                        GraspLocale.instance.locale = Locale.US
+                    } else {
+                        GraspLocale.instance.locale = Locale.GERMAN
+                    }
+
                 })
-                button('Clear Errors', actionPerformed: {bookPM.errors.value = []})
             }
         }
 

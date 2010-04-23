@@ -9,9 +9,13 @@ repositories {
 }
 
 dependencies {
-    groovy      "org.codehaus.groovy:groovy-all:1.7.0"
-    compile     "org.spockframework:spock-core:0.4-SNAPSHOT"
+    groovy    "org.codehaus.groovy:groovy-all:1.7.0"
+    compile   "org.spockframework:spock-core:0.4-SNAPSHOT"
     compile   "org.swinglabs:swingx:0.9.7"
+    compile   "org.springframework:spring-context:3.0.0.RELEASE"
+    compile   "org.springframework:spring-core:3.0.0.RELEASE"
+    compile   "org.springframework:spring-beans:3.0.0.RELEASE"
+    compile   'commons-logging:commons-logging:1.1.1'
     testCompile "junit:junit:4.8.1"
     testRuntime 'net.sourceforge.cobertura:cobertura:1.9.4.1'
 }

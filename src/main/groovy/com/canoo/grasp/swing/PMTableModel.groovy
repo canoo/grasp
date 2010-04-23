@@ -54,6 +54,10 @@ class PMTableModel extends AbstractTableModel {
         return source.size();
     }
 
+    AttributeColumn getColumn(int columnIndex) {
+        attributeColumns[columnIndex]
+    }
+
     String getColumnName(int columnIndex) {
         return attributeColumns[columnIndex].name();
     }

@@ -12,6 +12,7 @@ class AttributeSwitchTest extends Specification {
 
 
     void setup(){
+        Grasp.initialize()
         Map model = [a: 1]
         Attribute attribute = new Attribute(model, 'a', 'prefix')
         switcher = new AttributeSwitch(attribute: attribute)

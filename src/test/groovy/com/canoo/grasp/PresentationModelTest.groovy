@@ -9,6 +9,7 @@ class PresentationModelTest extends Specification {
     Map simpleModel
 
     void setup(){
+        Grasp.initialize()
         simpleModel = [attribute: value]
         simplePM = new OneSimpleAttributePM(model:simpleModel)
     }

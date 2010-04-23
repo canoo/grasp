@@ -13,11 +13,15 @@ import com.canoo.grasp.swing.PMTableFactory
 import com.canoo.grasp.swing.AttributeColumnFactory
 import com.canoo.grasp.GraspLocale
 
+import com.canoo.grasp.demo.pm.PublisherPM
+import com.canoo.grasp.demo.pm.BookPM
+import com.canoo.grasp.GraspContext
+
 Store store = new Store()
 Grasp.initialize()
 Grasp.useBinding(store)
-Grasp.setupI18n()
-
+Grasp.setupI18n(["com.canoo.grasp.demo.messages"] as String[])
+GraspContext.instance.basePackage = "com.canoo.grasp.demo"
 
 ["Groovy in Action", "Griffon in Action", "Grails in Action"].eachWithIndex { it, idx ->
     final Publisher publisher = new Publisher(name: "Manning $idx")

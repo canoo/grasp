@@ -48,7 +48,7 @@ class PresentationModel implements Cloneable {
                 def fieldname = property.name
                 if (!(fieldname in "metaClass class".tokenize())) {
                     try {
-                        def pmClassName =  this.getClass().getPackage().getName() + "." + property.type.getSimpleName() + "PM"
+                        def pmClassName = GraspContext.instance.resolvePresentationModelClassName(property.type)
                         def pmClass = Class.forName(pmClassName)
                         def instance = fetchPrototype(pmClass).clone()
                         instance.model = [:]

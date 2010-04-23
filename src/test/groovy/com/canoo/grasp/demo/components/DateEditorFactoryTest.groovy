@@ -1,14 +1,14 @@
 package com.canoo.grasp.demo.components
 
 import spock.lang.Specification
-import com.canoo.grasp.demo.BookPM
+import com.canoo.grasp.demo.pm.BookPM
 import org.jdesktop.swingx.JXDatePicker
 import com.canoo.grasp.Grasp
 import com.canoo.grasp.demo.domain.Book
 import com.canoo.grasp.demo.domain.Publisher
 import java.text.DateFormat
 import com.canoo.grasp.demo.domain.Environment
-import com.canoo.grasp.demo.EnvironmentPM
+import com.canoo.grasp.demo.pm.EnvironmentPM
 
 /**
  * Unit test for the SwingBuilder support.

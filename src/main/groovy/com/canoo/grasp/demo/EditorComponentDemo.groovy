@@ -8,6 +8,8 @@ import com.canoo.grasp.demo.domain.Publisher
 import groovy.swing.SwingBuilder
 import java.text.DateFormat
 import javax.swing.WindowConstants
+import com.canoo.grasp.demo.pm.BookPM
+import com.canoo.grasp.demo.pm.EnvironmentPM
 
 Grasp.initialize()
 Grasp.useBinding()

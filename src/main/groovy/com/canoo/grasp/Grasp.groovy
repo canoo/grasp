@@ -74,8 +74,9 @@ class Grasp {
     }
 
     static setupI18n(String[] basenames = null) {
-        if (!basenames) basenames = [DEFAULT_I18N_FILE] as String[]
-        if (!basenames.find {it == DEFAULT_I18N_FILE}) basenames = [DEFAULT_I18N_FILE] + basenames
+        if (!basenames) basenames = [] as String[]
+        println basenames
+        // if (!basenames.find {it == DEFAULT_I18N_FILE}) basenames = [DEFAULT_I18N_FILE, *basenames]
         getMessageSource().basenames = basenames as String[]
     }
 

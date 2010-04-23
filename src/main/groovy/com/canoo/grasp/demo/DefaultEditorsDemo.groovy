@@ -10,6 +10,8 @@ import com.canoo.grasp.Grasp
 import com.canoo.grasp.demo.domain.Environment
 
 import com.canoo.grasp.demo.components.GraspEditorFactory
+import com.canoo.grasp.demo.pm.BookPM
+import com.canoo.grasp.demo.pm.EnvironmentPM
 
 Grasp.initialize()
 Grasp.useBinding()

@@ -33,20 +33,28 @@ class Attribute implements IAttribute, Cloneable {
 
     private void updateLabel(String lbl) {
         if (!lbl) {
-            if(this.label) {
+            if (GraspLocale.instance.locale == Locale.default) {                           
+                lbl = capitalize(propertyName)
+            } else if (this.label) {
                 return
-            } else if (propertyName.length() == 1) {
-                lbl = propertyName.toUpperCase()
             } else {
-                lbl = propertyName[0].toUpperCase() + propertyName[1..-1]
+                lbl = capitalize(propertyName)
             }
         }
         setLabel(lbl)
     }
 
-    private void updateDescription(String desc){
-        if(!desc) {
-            if(this.description) {
+    private static String capitalize(String str) {
+        if (str.length() == 1) {
+            str.toUpperCase()
+        } else {
+            str[0].toUpperCase() + str[1..-1]
+        }
+    }
+
+    private void updateDescription(String desc) {
+        if (!desc) {
+            if (this.description) {
                 return
             } else {
                 desc = "${lookupPrefix}.${propertyName}.description".toString()
@@ -66,8 +74,8 @@ class Attribute implements IAttribute, Cloneable {
     @Bindable boolean readOnly = false
 
     protected PropertyChangeListener listener = {e ->
-        setDescription(fetchI18NResource())
-        setLabel(fetchI18NResource('label'))
+        updateDescription(fetchI18NResource())
+        updateLabel(fetchI18NResource('label'))
     } as PropertyChangeListener
 
     def getModelValue() { model?.getAt(propertyName) }

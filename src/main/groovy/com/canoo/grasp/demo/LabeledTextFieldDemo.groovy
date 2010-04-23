@@ -6,6 +6,7 @@ import com.canoo.grasp.demo.domain.Book
 import com.canoo.grasp.demo.domain.Publisher
 
 import com.canoo.grasp.Grasp
+import com.canoo.grasp.demo.pm.BookPM
 
 Book gina = new Book(title: "gina", isbn: "0123456789", author: null, publisher: new Publisher(name: "publisher"))
 BookPM bookPM = new BookPM(model: gina)

@@ -48,10 +48,11 @@ builder.edt {
         scrollPane {
             pmTable(selectionMode: SINGLE_SELECTION, store: store,
                     type: BookPM, selection: selectedBook, id: 'master') {
-                attributeColumn bind: {pm -> pm.title}
-                attributeColumn bind: {pm -> pm.isbn}, editable: false
-                attributeColumn bind: {pm -> pm.author}, editable: false
-                attributeColumn bind: {pm -> pm.publisher.name}
+                attributeColumn bind: {BookPM b -> b.title}
+                attributeColumn bind: {it.isbn}, editable: false
+                attributeColumn bind: {it.author}, editable: false
+                attributeColumn bind: {it.publisher.name}
+                // attributeColumn 'publisher.name', editable: false
             }
         }
         hstrut 20
@@ -93,6 +94,3 @@ builder.edt {
     }
   }
 }
-
-println selectedBook.publisher.hashCode()
-println PublisherPM.list()*.hashCode()

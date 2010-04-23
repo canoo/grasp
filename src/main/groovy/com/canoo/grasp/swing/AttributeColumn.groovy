@@ -24,7 +24,6 @@ class AttributeColumn extends TableColumn {
     String name() {
         setHeaderValue(rebind(PresentationModel.fetchPrototype(presentationModelClass)).label)
         getHeaderValue()
-        // rebind(PresentationModel.fetchPrototype(presentationModelClass)).label
     }
 
     Class type() {
@@ -33,7 +32,6 @@ class AttributeColumn extends TableColumn {
 
     void setBind(Closure binding) {
         this.binding = binding
-        // name()
     }
 
     void setEditable(boolean b) {

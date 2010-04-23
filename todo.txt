@@ -62,6 +62,36 @@ Infrastrukture (Wenn hast du Langweile)
  - create a gradlew file
  - Grasp build.gradle soll IDEA datei machen (vielleicht ein Gradle Plugin?)
 
+Form layout ideas:
+form(selectionPM)
+
+/*
+   roughly resolves to
+   setLayout(new MigLayout())
+   selection.attributes.each { p->
+     label().bind {pm -> pm[p.propertyName]}, prop: 'label'
+     editor(constraints: 'wrap').bind {pm -> pm[p.propertyName]}
+   }
+*/
+
+-------------------------------
+layoutTemplate = """
+separator('Book', constraints: 'span, wrap')
+label(:title)  editor(:title, constraints: 'growx, span, wrap') 
+label(:author) editor(:author) editor(:publishDate)
+""" 
+form(selectionPM, layout: new MigLayout(), layoutTemplate: xxx)
+
+-------------------------------
+form(layout: new MigLayout()) {
+   separator('Book', constraints: 'span, wrap')
+   label(selection.title)
+   editor(selection.title, constraints: 'growx, span, wrap') 
+   label(selection.author)
+   editor(selection.author)
+   editor(selection.publishDate)
+}
+
 ------------------------
 
 note:

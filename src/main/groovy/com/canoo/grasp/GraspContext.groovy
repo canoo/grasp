@@ -2,7 +2,6 @@ package com.canoo.grasp
 
 import java.beans.PropertyChangeListener
 import java.beans.PropertyChangeEvent
-import javax.swing.JTable
 import org.codehaus.groovy.runtime.MethodClosure
 
 import org.springframework.context.MessageSource

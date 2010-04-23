@@ -48,7 +48,9 @@ class Store {
     void delete(PresentationModel pm) { // todo dk: think about deleting all references to that instance
         fetchClassList(pm.class).remove pm
         pm.removePropertyChangeListener listener
-        for (listener in listenersPerClass[pm.class]) listener.deleted pm
+        for (listener in listenersPerClass[pm.class]) {
+            listener.deleted pm
+        }
     }
 
 

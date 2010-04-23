@@ -9,7 +9,7 @@ class PresentationModel implements Cloneable {
     long version
 
     protected final PropertyChangeSupport pcs
-    private static final String protoPropertyName = '_PM_PROTOYPE_'
+    private static final String PROTO_PROPERTY_NAME = '_PM_PROTOYPE_'
 
     static isTransientProperty(String key) {
         key in ["class", "metaClass", "scaffold", "constraints", "id", "version", "listener", "_PM_PROTOYPE_"]
@@ -104,10 +104,10 @@ class PresentationModel implements Cloneable {
         assert clazz in PresentationModel
 
         MetaClass mc = clazz.metaClass
-        MetaProperty protoProperty = mc.getMetaProperty(protoPropertyName)
+        MetaProperty protoProperty = mc.getMetaProperty(PROTO_PROPERTY_NAME)
         if(protoProperty) return protoProperty.getProperty(clazz)
         def proto = mc.respondsTo(clazz, 'prototype') ? clazz.prototype(): initializePrototype(clazz.newInstance())
-        mc."$protoPropertyName" = proto
+        mc."$PROTO_PROPERTY_NAME" = proto
         return proto
     }
 

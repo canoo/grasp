@@ -2,6 +2,7 @@ package com.canoo.grasp
 
 import groovy.beans.Bindable
 import java.beans.Introspector
+import java.beans.PropertyChangeListener
 
 class Attribute implements IAttribute, Cloneable {
 
@@ -9,31 +10,56 @@ class Attribute implements IAttribute, Cloneable {
         this.model = model
         propertyName = propname
         this.lookupPrefix = lookupPrefix
-        description = GraspContext.lookup("${lookupPrefix}.${propertyName}.description".toString())
         value = modelValue
 
-        if(model in Map) {
+        if (model in Map) {
             type = value != null ? value.getClass() : String
-        } else if (model){
-            type = Introspector.getBeanInfo(model.class).getPropertyDescriptors().find{ it.name == propname }.propertyType
+        } else if (model) {
+            type = Introspector.getBeanInfo(model.class).getPropertyDescriptors().find { it.name == propname }.propertyType
         } else {
             type = String
         }
+
+        GraspLocale.instance.addPropertyChangeListener("locale", listener)
+        setDescription(fetchI18NResource())
+        setLabel(fetchI18NResource('label'))
+    }
+
+    private String fetchI18NResource(String key = 'description') {
+        String resourceKey = "${lookupPrefix}.${propertyName}.${key}".toString()
+        String resource = GraspContext.lookup(resourceKey)
+        resource != resourceKey ? resource : ""
+    }
+
+    public void setLabel(String lbl) {
+        if (!lbl) lbl = propertyName[0].toUpperCase() + propertyName[1..-1]
+        this.label = lbl
     }
 
     private model
     private String propertyName
     final Class type
-    final String description
     private final String lookupPrefix
 
+    @Bindable String label
+    @Bindable String description
     @Bindable def value
     @Bindable boolean readOnly = false
 
+    protected PropertyChangeListener listener = {e ->
+        setDescription(fetchI18NResource())
+        setLabel(fetchI18NResource('label'))
+    } as PropertyChangeListener
+
     def getModelValue() { model[propertyName] }
+
     Class getValueType() { type }
 
     Object clone() {
         new Attribute(model, propertyName, lookupPrefix)
+    }
+
+    void dispose() {
+        GraspLocale.instance.removePropertyChangeListener 'locale', listener
     }
 }

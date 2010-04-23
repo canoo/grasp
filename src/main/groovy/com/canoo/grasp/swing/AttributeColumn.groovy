@@ -4,14 +4,9 @@ import javax.swing.table.TableColumn
 import com.canoo.grasp.Attribute
 import com.canoo.grasp.PresentationModel
 import com.canoo.grasp.AttributeSwitch
+import com.canoo.grasp.GraspLocale
+import java.beans.PropertyChangeListener
 
-/**
- * Created by IntelliJ IDEA.
- * User: aalmiray
- * Date: Apr 22, 2010
- * Time: 12:33:47 AM
- * To change this template use File | Settings | File Templates.
- */
 class AttributeColumn extends TableColumn {
     private Closure binding
     Closure read = {attr -> attr.value }
@@ -20,7 +15,7 @@ class AttributeColumn extends TableColumn {
 
     private final Class presentationModelClass
 
-    AttributeColumn(Class presentationModelClass){
+    AttributeColumn(Class presentationModelClass) {
         this.presentationModelClass = presentationModelClass
     }
 
@@ -29,7 +24,9 @@ class AttributeColumn extends TableColumn {
     }
 
     String name() {
-        rebind(PresentationModel.fetchPrototype(presentationModelClass)).propertyName
+        setHeaderValue(rebind(PresentationModel.fetchPrototype(presentationModelClass)).label)
+        getHeaderValue()
+        // rebind(PresentationModel.fetchPrototype(presentationModelClass)).label
     }
 
     Class type() {
@@ -38,6 +35,7 @@ class AttributeColumn extends TableColumn {
 
     void setBind(Closure binding) {
         this.binding = binding
+        // name()
     }
 
     void setEditable(boolean b) {
@@ -54,8 +52,8 @@ class AttributeColumn extends TableColumn {
 
     boolean isEditable(PresentationModel pm) {
         boolean readOnly = rebind(pm).readOnly
-        if(readOnly) return false
-        if(editable != null) return editable
+        if (readOnly) return false
+        if (editable != null) return editable
         return true
     }
 

@@ -55,7 +55,7 @@ class PMTableModelTest extends Specification {
             store.save pm1
             store.save pm2
 
-            PresentationModelSwitch selection = new PresentationModelSwitch(new OneSimpleAttributePM([:]))
+            PresentationModelSwitch selection = new PresentationModelSwitch(OneSimpleAttributePM)
             SwingBuilder builder = new SwingBuilder()
             builder.registerFactory("pmTable", new PMTableFactory())
             builder.registerFactory("attributeColumn", new AttributeColumnFactory())
@@ -84,6 +84,51 @@ class PMTableModelTest extends Specification {
 
             pm2.attribute.value == "sit amet"
             builder.master.model.getValueAt(1, 0) == "sit amet"
+    }
+
+    def "A TableModel can listen to different PM updates, including nested models"() {
+        setup:
+
+            def pm1 = new CarPM(model: new Car(wheels: 4, brand: new Brand(name: "Ford"),
+                      color: Color.RED, year: new Date(), owner: new Owner(firstname: "Hamlet", lastname: "D'Arcy")))
+            def pm2 = new CarPM(model: new Car(wheels: 4, brand: new Brand(name: "Kia"),
+                      color: Color.BLUE, year: new Date(), owner: new Owner(firstname: "Andres", lastname: "Almiray")))
+
+            store.save pm1
+            store.save pm2
+            PresentationModelSwitch selection = new PresentationModelSwitch(CarPM)
+
+            SwingBuilder builder = new SwingBuilder()
+            builder.registerFactory("pmTable", new PMTableFactory())
+            builder.registerFactory("attributeColumn", new AttributeColumnFactory())
+            builder.pmTable(store: store,
+                type: CarPM, selection: selection, id: 'master') {
+                attributeColumn bind: {pm -> pm.wheels}
+                attributeColumn bind: {pm -> pm.owner.firstname}
+            }
+
+            SimpleEditor editor1 = new SimpleEditor()
+            editor1.bind selection.wheels, on: "propertyChange"
+            SimpleEditor editor2 = new SimpleEditor()
+            editor2.bind pm2.owner.firstname, on: "propertyChange"
+
+        when:
+            builder.master.selectionModel.setSelectionInterval(0,0)
+            assert editor1.text == "4"
+            assert editor2.text == "Andres"
+
+            editor1.text = "6"
+            editor2.text = "Dieter"
+
+        then:
+            selection.wheels.value == "6"
+            pm1.wheels.value == "6"
+            builder.master.model.getValueAt(0, 0) == "6"
+            builder.master.model.getValueAt(0, 1) == "Hamlet"
+
+            pm2.owner.firstname.value == "Dieter"
+            builder.master.model.getValueAt(1, 0) == 4
+            builder.master.model.getValueAt(1, 1) == "Dieter"
     }
 
     static class SimpleEditor {

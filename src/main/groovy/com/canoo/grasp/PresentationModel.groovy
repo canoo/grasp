@@ -2,9 +2,9 @@ package com.canoo.grasp
 
 import com.canoo.grasp.demo.domain.Errors
 import java.beans.PropertyChangeListener
-import java.beans.PropertyChangeSupport
 
 class PresentationModel implements Cloneable {
+    // protected static final Log LOG = LogFactory.getLog(PresentationModel)
 
     long id
     long version
@@ -18,15 +18,15 @@ class PresentationModel implements Cloneable {
     }
 
     protected final PropertyChangeListener listener = {e ->
-        pcs.firePropertyChange(e.propertyName, e.oldValue, e.newValue)
+        pcs.firePropertyChange e.propertyName, e.oldValue, e.newValue
     } as PropertyChangeListener
 
     Object clone() {
         def other = getClass().newInstance()
         other.id = id
         other.version = version
-        properties.each { key, value ->
-            if(value in [Attribute, AttributeSwitch, PresentationModelSwitch]) {
+        properties.each {key, value ->
+            if (value in [Attribute, AttributeSwitch, PresentationModelSwitch]) {
                 other[key] = value.clone()
             }
         }
@@ -34,34 +34,37 @@ class PresentationModel implements Cloneable {
     }
 
     void dispose() {
-        properties.each { key, value ->
-            if(value in [Attribute, AttributeSwitch, PresentationModelSwitch]) {
-                 value.dispose()
+        properties.each {key, value ->
+            if (value in [Attribute, AttributeSwitch, PresentationModelSwitch]) {
+                value.dispose()
             }
         }
     }
-    
+
     PresentationModel() {
         errors = new Attribute(new Errors(errors: [] as Set), "errors", "grasp.errors", this)
 
         pcs = new PropertyChangeSupport(this)
-
+        // LOG.trace "BUILDING ${getClass().name}"
         if (properties.containsKey("scaffold")) {
             def emc = new ExpandoMetaClass(this.getClass(), false)
-            this.scaffold.metaClass.properties.each { MetaBeanProperty property ->
+            
+            this.scaffold.metaClass.properties.each {MetaBeanProperty property ->
                 def fieldname = property.name
                 if (!(fieldname in "metaClass class".tokenize())) {
                     try {
                         def pmClassName = GraspContext.instance.resolvePresentationModelClassName(property.type)
                         def pmClass = Class.forName(pmClassName)
-                        def instance = fetchPrototype(pmClass).clone()
-                        instance.model = [:]
-                        def modelSwitch = new PresentationModelSwitch(instance)
+                        // LOG.trace "$fieldname is a SWITCH"
+                        def modelSwitch = new PresentationModelSwitch(pmClass)
                         emc."$fieldname" = modelSwitch
+                        modelSwitch.addPropertyChangeListener listener
                     } catch (ClassNotFoundException e) {
-                        emc."$fieldname" = new Attribute([:], fieldname, this.getClass().name, this)
+                        def attr = new Attribute([:], fieldname, this.getClass().name, this)
+                        // LOG.trace "$fieldname is an ATTRIBUTE"
+                        attr.addPropertyChangeListener listener
+                        emc."$fieldname" = attr
                     }
-                    // emc."$fieldname".addPropertyChangeListener listener
                 }
             }
             emc.initialize()
@@ -81,19 +84,20 @@ class PresentationModel implements Cloneable {
         pcs.firePropertyChange propertyName, oldValue, newValue
     }
 
-    /**
-     * Setting a model automatically attaches new Attribute objects to all properties of this
-     * Presentation model backed by the model.
-     * @param model can be anything that exposes properties, e.g. Grails domain objects or a simple map
-     * @throws MissingPropertyException if the model has no property that the presentation model claims to reflect
-     */
+/**
+ * Setting a model automatically attaches new Attribute objects to all properties of this
+ * Presentation model backed by the model.
+ * @param model can be anything that exposes properties, e.g. Grails domain objects or a simple map
+ * @throws MissingPropertyException if the model has no property that the presentation model claims to reflect
+ */
     void setModel(Object model) { // todo: check. This is probably called erroneously with a PM, not a backing model...
-        properties.each { key, value ->
+        properties.each {key, value ->
             if (value in PresentationModelSwitch) { // todo: check (Andres)
-                def newPM = PresentationModel.fetchPrototype(value.adaptee.getClass()).clone()
-                newPM.model = model[key]
-                value.adaptee.dispose()
-                value.adaptee = newPM
+                if (model == null) return
+                def npm = value.presentationModelClass.newInstance()
+                npm.model = model?.getAt(key)
+                value.adaptee?.dispose()
+                value.adaptee = npm
                 return
             }
             if (isTransientProperty(key)) return
@@ -109,39 +113,40 @@ class PresentationModel implements Cloneable {
 
         MetaClass mc = clazz.metaClass
         MetaProperty protoProperty = mc.getMetaProperty(PROTO_PROPERTY_NAME)
-        if(protoProperty) return protoProperty.getProperty(clazz)
-        def proto = mc.respondsTo(clazz, 'prototype') ? clazz.prototype(): initializePrototype(clazz.newInstance())
+        if (protoProperty) return protoProperty.getProperty(clazz)
+        def proto = mc.respondsTo(clazz, 'prototype') ? clazz.prototype() : initializePrototype(clazz.newInstance())
         mc."$PROTO_PROPERTY_NAME" = proto
         return proto
     }
 
     static PresentationModel initializePrototype(PresentationModel pm) {
+        def mc = pm.getClass().metaClass
+        if (mc.hasProperty(pm, 'scaffold')) {
+            pm.model = pm.getClass().scaffold.newInstance()
+            return pm
+        }
+
         try {
             String modelClassName = pm.getClass().name - 'PM'
-            Class modelClass = modelClassName as Class
+            Class modelClass = Class.forName(modelClassName)
             def model = modelClass.newInstance()
             pm.model = model
             return pm
-        } catch(x) {
+        } catch (x) {
             // ignore
         }
 
-        
-        def inspectPm = null
-        inspectPm = {target ->
-            def accum = [:]
-            target.properties.inject([:]) { map, entry ->
-                if (isTransientProperty(entry.key)) return map
-                MetaProperty mp = target.metaClass.getMetaProperty(entry.key) 
-                def type = mp ? mp.getProperty(target) : target.class.getDeclaredField(entry.key).type
-                if(type in PresentationModelSwitch) map[(entry.key)] = entry.value.adaptee
-                map
-            }.each { key, type ->
-                accum[key] = inspectPm(type)
-            }
-            accum
-        }
-        pm.model = inspectPm(pm)
+        pm.model = [:]
         pm
     }
+
+    List fetchModelReferences() {
+        properties.inject([]) {list, entry ->
+            if (entry.value in PresentationModelSwitch) {
+                list << entry.value
+            }
+            list
+        }
+    }
+
 }

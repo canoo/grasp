@@ -30,7 +30,7 @@ GraspContext.instance.basePackage = "com.canoo.grasp.demo"
     store.save bookPM
 }
 
-def selectedBook = new PresentationModelSwitch(new BookPM())
+def selectedBook = new PresentationModelSwitch(BookPM)
 
 SwingBuilder builder = new SwingBuilder()
 builder.registerFactory("pmTable", new PMTableFactory())
@@ -55,7 +55,7 @@ builder.edt {
             }
         }
         hstrut 20
-         boundLabel(selectedBook.title)
+        boundLabel(selectedBook.title)
         // long way ->
         // label().bind selectedBook.title, prop: "description"
         textField(columns: 20).bind selectedBook.title, on: "keyReleased"
@@ -93,3 +93,6 @@ builder.edt {
     }
   }
 }
+
+println selectedBook.publisher.hashCode()
+println PublisherPM.list()*.hashCode()

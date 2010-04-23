@@ -73,4 +73,15 @@ class StoreTest extends Specification {
             0 * listener.added(_)
             0 * listener.deleted(_)
     }
+
+    def "transitive model references are saved to the store too"() {
+        when:
+            def owner = new Owner(firstname: "Hamlet", lastname: "D'Arcy")
+            def now = new Date()
+            def carPM = new CarPM(model: new Car(wheels: 4, brand: new Brand(name: "Ford"), color: Color.RED, year: now, owner: owner))
+            store.save carPM
+        then:
+            CarPM.list().size() == 1
+            OwnerPM.list().size() == 1
+    }
 }

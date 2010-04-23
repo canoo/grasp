@@ -1,18 +1,19 @@
 package com.canoo.grasp
 
-import java.beans.PropertyChangeSupport
 import java.beans.PropertyChangeListener
+import java.beans.PropertyChangeSupport
 
 class PresentationModel implements Cloneable {
 
     long id
     long version
+    Attribute errors = new Attribute([:], "errors", "grasp.errors")
 
     protected final PropertyChangeSupport pcs
     private static final String PROTO_PROPERTY_NAME = '_PM_PROTOYPE_'
 
     static isTransientProperty(String key) {
-        key in ["class", "metaClass", "scaffold", "constraints", "id", "version", "listener", "_PM_PROTOYPE_"]
+        key in ["class", "metaClass", "scaffold", "errors", "constraints", "id", "version", "listener", "_PM_PROTOYPE_"]
     }
 
     protected final PropertyChangeListener listener = {e ->

@@ -16,15 +16,15 @@ class PresentationModel implements Cloneable {
     }
 
     protected final PropertyChangeListener listener = {e ->
-        pcs.firePropertyChange(e.propertyName, e.oldValue, e.newValue)
+        pcs.firePropertyChange e.propertyName, e.oldValue, e.newValue
     } as PropertyChangeListener
 
     Object clone() {
         def other = getClass().newInstance()
         other.id = id
         other.version = version
-        properties.each { key, value ->
-            if(value in [Attribute, AttributeSwitch, PresentationModelSwitch]) {
+        properties.each {key, value ->
+            if (value in [Attribute, AttributeSwitch, PresentationModelSwitch]) {
                 other[key] = value.clone()
             }
         }
@@ -32,19 +32,19 @@ class PresentationModel implements Cloneable {
     }
 
     void dispose() {
-        properties.each { key, value ->
-            if(value in [Attribute, AttributeSwitch, PresentationModelSwitch]) {
-                 value.dispose()
+        properties.each {key, value ->
+            if (value in [Attribute, AttributeSwitch, PresentationModelSwitch]) {
+                value.dispose()
             }
         }
     }
-    
+
     PresentationModel() {
         pcs = new PropertyChangeSupport(this)
 
         if (properties.containsKey("scaffold")) {
             def emc = new ExpandoMetaClass(this.getClass(), false)
-            this.scaffold.metaClass.properties.each { MetaBeanProperty property ->
+            this.scaffold.metaClass.properties.each {MetaBeanProperty property ->
                 def fieldname = property.name
                 if (!(fieldname in "metaClass class".tokenize())) {
                     try {
@@ -54,8 +54,11 @@ class PresentationModel implements Cloneable {
                         instance.model = [:]
                         def modelSwitch = new PresentationModelSwitch(instance)
                         emc."$fieldname" = modelSwitch
+                        modelSwitch.addPropertyChangeListener listener
                     } catch (ClassNotFoundException e) {
-                        emc."$fieldname" = new Attribute([:], fieldname, this.getClass().name)
+                        def attr = new Attribute([:], fieldname, this.getClass().name)
+                        attr.addPropertyChangeListener listener
+                        emc."$fieldname" = attr
                     }
                     // emc."$fieldname".addPropertyChangeListener listener
                 }
@@ -84,7 +87,7 @@ class PresentationModel implements Cloneable {
      * @throws MissingPropertyException if the model has no property that the presentation model claims to reflect
      */
     void setModel(Object model) { // todo: check. This is probably called erroneously with a PM, not a backing model...
-        properties.each { key, value ->
+        properties.each {key, value ->
             if (value in PresentationModelSwitch) { // todo: check (Andres)
                 def newPM = PresentationModel.fetchPrototype(value.adaptee.getClass()).clone()
                 newPM.model = model[key]
@@ -105,8 +108,8 @@ class PresentationModel implements Cloneable {
 
         MetaClass mc = clazz.metaClass
         MetaProperty protoProperty = mc.getMetaProperty(PROTO_PROPERTY_NAME)
-        if(protoProperty) return protoProperty.getProperty(clazz)
-        def proto = mc.respondsTo(clazz, 'prototype') ? clazz.prototype(): initializePrototype(clazz.newInstance())
+        if (protoProperty) return protoProperty.getProperty(clazz)
+        def proto = mc.respondsTo(clazz, 'prototype') ? clazz.prototype() : initializePrototype(clazz.newInstance())
         mc."$PROTO_PROPERTY_NAME" = proto
         return proto
     }
@@ -118,26 +121,35 @@ class PresentationModel implements Cloneable {
             def model = modelClass.newInstance()
             pm.model = model
             return pm
-        } catch(x) {
+        } catch (x) {
             // ignore
         }
 
-        
+
         def inspectPm = null
         inspectPm = {target ->
             def accum = [:]
-            target.properties.inject([:]) { map, entry ->
+            target.properties.inject([:]) {map, entry ->
                 if (isTransientProperty(entry.key)) return map
-                MetaProperty mp = target.metaClass.getMetaProperty(entry.key) 
+                MetaProperty mp = target.metaClass.getMetaProperty(entry.key)
                 def type = mp ? mp.getProperty(target) : target.class.getDeclaredField(entry.key).type
-                if(type in PresentationModelSwitch) map[(entry.key)] = entry.value.adaptee
+                if (type in PresentationModelSwitch) map[(entry.key)] = entry.value.adaptee
                 map
-            }.each { key, type ->
+            }.each {key, type ->
                 accum[key] = inspectPm(type)
             }
             accum
         }
         pm.model = inspectPm(pm)
         pm
+    }
+
+    List fetchModelReferences() {
+        properties.inject([]) {list, entry ->
+            if (entry.value in PresentationModelSwitch) {
+                list << entry.value
+            }
+            list
+        }
     }
 }

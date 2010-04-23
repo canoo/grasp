@@ -8,7 +8,7 @@ class AttributeSwitch implements IAttribute, Cloneable {
     private Attribute attribute
     private relay = true // do not relay the attribute value change if we triggered it ourselves
     private PropertyChangeListener listener = { event ->
-        if (relay) this$propertyChangeSupport.firePropertyChange event
+        if (relay) firePropertyChange event.propertyName, event.oldValue, event.newValue
     } as PropertyChangeListener
 
     void setAttribute(Attribute newAttribute) {
@@ -17,7 +17,7 @@ class AttributeSwitch implements IAttribute, Cloneable {
         attribute?.dispose()
         attribute = newAttribute
         attribute.addPropertyChangeListener listener
-        this$propertyChangeSupport.firePropertyChange('value', oldValue, value)
+        firePropertyChange 'value', oldValue, value
     }
 
     def propertyMissing(String name) {

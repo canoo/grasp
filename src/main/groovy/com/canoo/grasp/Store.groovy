@@ -29,7 +29,6 @@ class Store {
         listenersPerClass[e.source.getClass()]*.updated(e.source)
     } as PropertyChangeListener
 
-
     void save(PresentationModel pm) {
         Class clazz = pm.class
         List knownPMs = fetchClassList(clazz)
@@ -42,6 +41,7 @@ class Store {
             if (!pm.id) pm.id = knownPMs.id.max() + 1 // id generator // todo start with hashcode, find next available
             listenersPerClass[clazz]*.added(pm)
             pm.addPropertyChangeListener listener
+            pm.fetchModelReferences().each {save(it.adaptee)}
         }
     }
 

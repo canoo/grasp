@@ -17,7 +17,7 @@ class PMTableFactory extends AbstractFactory {
         if (!table) table = new JTable()
 
         Class type = attributes.remove('type')
-        PresentationModelSwitch pm = attributes.remove('selection')
+        PresentationModelSwitch selection = attributes.remove('selection')
         Store store = attributes.remove('store')
         Closure filter = attributes.remove('filter') ?: PMTableModel.DEFAULT_FILTER
 
@@ -25,40 +25,34 @@ class PMTableFactory extends AbstractFactory {
 
         table.selectionModel.valueChanged = {
             int row = table.selectedRow
-            pm.adaptee = (row == -1) ? null : model.rows[row] // todo dk: convert from view to row index
+            selection.adaptee = (row == -1) ? null : model.rows[row] // todo dk: convert from view to row index
         }
         def onSelectedPMChanged = {e ->
-            def pmRowIdx = model.rows.findIndexOf { it == pm.adaptee }  // todo dk: convert from row to view index
+            def pmRowIdx = model.rows.findIndexOf { it == selection.adaptee }  // todo dk: convert from row to view index
             // if not found, pmRowIdx==-1 and using that below works better than clearSelection()
             table.selectionModel.setSelectionInterval pmRowIdx, pmRowIdx
         }
-        pm.addPropertyChangeListener onSelectedPMChanged as PropertyChangeListener
-
-        GraspLocale.instance.addPropertyChangeListener('locale',{e->
-             table.tableHeader.columnModel.columns.eachWithIndex {c, i ->
-                 // println "${c.headerValue} ${model.getColumn(i).headerValue} ${model.getColumn(i).name()}" 
-                 // c.setHeaderValue(model.getColumn(i).name())
-             }
-             table.tableHeader.repaint()
-             table.repaint()
-        } as PropertyChangeListener)
+        selection.addPropertyChangeListener onSelectedPMChanged as PropertyChangeListener
 
         def detailChangedListener = {e ->
             int row = table.selectedRow
             model.fireTableRowsUpdated row, row
         } as PropertyChangeListener
 
+        /*
         def applyListener = null
         applyListener = {target ->
             target.proxyAttributePerName.values().each {att ->
                 if (att in AttributeSwitch) {
-                    if(target != pm) att.addPropertyChangeListener detailChangedListener
+                    if(target != selection) att.addPropertyChangeListener detailChangedListener
                 } else if (att in PresentationModelSwitch) {
                     applyListener(att)
                 }
             }
         }
-        applyListener(pm)
+        // applyListener(selection)
+        */
+        selection.addPropertyChangeListener detailChangedListener
 
 
         builder.context[TABLE_MODEL] = model

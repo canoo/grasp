@@ -64,26 +64,6 @@ class PresentationModelSwitch extends PresentationModel {
         adaptee.addPropertyChangeListener listener
         oldAdaptee?.dispose()
         firePropertyChange "adaptee", oldAdaptee, newAdaptee
-
-/*        def moveListeners = null
-        moveListeners = {oldA, newA ->
-            oldA?.properties.findAll {it.value in PresentationModelSwitch}.each {key, pms ->
-                pms.proxyAttributePerName.values().each {att ->
-                    println att
-                    if (att in AttributeSwitch) {
-                        def listeners = att.getPropertyChangeListeners()
-                        listeners.each { l ->
-                            // att.removePropertyChangeListener(l)
-                            // newA[key].proxyAttributePerName[att.attribute.propertyName].addPropertyChangeListener(l)
-                        }
-                    } else if (att in PresentationModelSwitch) {
-                        // moveListeners(att, newA[key])
-                    }
-                }
-            }
-            // println "move from $oldAdaptee to $newAdaptee"
-        }
-        moveListeners(oldAdaptee, newAdaptee)*/
     }
 
     def propertyMissing(String propname) {

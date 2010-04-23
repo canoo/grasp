@@ -93,3 +93,6 @@ builder.edt {
     }
   }
 }
+
+println selectedBook.publisher.hashCode()
+println PublisherPM.list()*.hashCode()

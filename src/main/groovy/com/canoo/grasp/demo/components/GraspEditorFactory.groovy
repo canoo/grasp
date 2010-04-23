@@ -1,15 +1,18 @@
 package com.canoo.grasp.demo.components
 
-
 /**
  * Handles creating generic components. 
  */
 class GraspEditorFactory extends AbstractFactory {
 
-    List<GraspEditor> editors = []
-
+    List<GraspEditor> editors = [
+            new DateEditorFactory(),
+            new StringEditor(),
+            new LocaleEditor(),
+            new BooleanEditor(),
+            new ErrorsEditor() ]
+    
     GraspEditorFactory(List<GraspEditor> additionalBindings = []) {
-        editors.addAll([ new DateEditorFactory(), new StringEditor(), new LocaleEditor(), new BooleanEditor() ])
         editors.addAll(additionalBindings)
     }
     

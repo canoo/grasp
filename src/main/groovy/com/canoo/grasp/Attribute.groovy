@@ -6,7 +6,8 @@ import java.beans.PropertyChangeListener
 
 class Attribute implements IAttribute, Cloneable {
 
-    Attribute(model, String propname, String lookupPrefix) {
+    Attribute(model, String propname, String lookupPrefix, PresentationModel presentationModel = null) {
+        this.presentationModel = presentationModel
         this.model = model
         propertyName = propname
         this.lookupPrefix = lookupPrefix
@@ -67,7 +68,8 @@ class Attribute implements IAttribute, Cloneable {
     private String propertyName
     final Class type
     private final String lookupPrefix
-
+    def presentationModel
+    
     @Bindable String label
     @Bindable String description
     @Bindable def value
@@ -83,7 +85,7 @@ class Attribute implements IAttribute, Cloneable {
     Class getValueType() { type }
 
     Object clone() {
-        new Attribute(model, propertyName, lookupPrefix)
+        new Attribute(model, propertyName, lookupPrefix, presentationModel)
     }
 
     void dispose() {

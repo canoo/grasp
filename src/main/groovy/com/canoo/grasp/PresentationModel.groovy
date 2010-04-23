@@ -1,18 +1,20 @@
 package com.canoo.grasp
 
-import java.beans.PropertyChangeSupport
+import com.canoo.grasp.demo.domain.Errors
 import java.beans.PropertyChangeListener
+import java.beans.PropertyChangeSupport
 
 class PresentationModel implements Cloneable {
 
     long id
     long version
+    Attribute errors
 
     protected final PropertyChangeSupport pcs
     private static final String PROTO_PROPERTY_NAME = '_PM_PROTOYPE_'
 
     static isTransientProperty(String key) {
-        key in ["class", "metaClass", "scaffold", "constraints", "id", "version", "listener", "_PM_PROTOYPE_"]
+        key in ["class", "metaClass", "scaffold", "errors", "constraints", "id", "version", "listener", "_PM_PROTOYPE_"]
     }
 
     protected final PropertyChangeListener listener = {e ->
@@ -40,6 +42,8 @@ class PresentationModel implements Cloneable {
     }
     
     PresentationModel() {
+        errors = new Attribute(new Errors(errors: [] as Set), "errors", "grasp.errors", this)
+
         pcs = new PropertyChangeSupport(this)
 
         if (properties.containsKey("scaffold")) {
@@ -55,7 +59,7 @@ class PresentationModel implements Cloneable {
                         def modelSwitch = new PresentationModelSwitch(instance)
                         emc."$fieldname" = modelSwitch
                     } catch (ClassNotFoundException e) {
-                        emc."$fieldname" = new Attribute([:], fieldname, this.getClass().name)
+                        emc."$fieldname" = new Attribute([:], fieldname, this.getClass().name, this)
                     }
                     // emc."$fieldname".addPropertyChangeListener listener
                 }
@@ -95,7 +99,7 @@ class PresentationModel implements Cloneable {
             if (isTransientProperty(key)) return
             this[key]?.removePropertyChangeListener listener
             this[key]?.dispose()
-            this[key] = new Attribute(model, key, this.getClass().name)
+            this[key] = new Attribute(model, key, this.getClass().name, this)
             this[key].addPropertyChangeListener listener
         }
     }

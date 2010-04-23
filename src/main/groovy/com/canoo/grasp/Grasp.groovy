@@ -1,13 +1,12 @@
 package com.canoo.grasp
 
-import java.beans.PropertyChangeListener
 import java.beans.PropertyChangeEvent
+import java.beans.PropertyChangeListener
 import org.codehaus.groovy.runtime.MethodClosure
-
 import org.springframework.context.MessageSource
 import org.springframework.context.MessageSourceResolvable
-import org.springframework.context.support.ResourceBundleMessageSource
 import org.springframework.context.NoSuchMessageException
+import org.springframework.context.support.ResourceBundleMessageSource
 
 class Grasp {
 
@@ -133,6 +132,19 @@ class Grasp {
                 view.addPropertyChangeListener(propertyName, update as PropertyChangeListener)
             }
             for (action in actions) { view[action] = update }
+
+            // does this thing validate? If so, wire in some validation listeners
+            if (attribute) {
+                def validateActions = convert.validateOn?.tokenize()
+                def attributeValidationFunction = convert.validation
+                def validateFunction = { enforceValidation(attribute, view, attributeValidationFunction) }
+                if (!validateActions && view.respondsTo("addActionListener")) {   // default
+                    view.actionPerformed = validateFunction
+                } else if (!validateActions && view.respondsTo("addPropertyChangeListener")) {   // default
+                    view.addPropertyChangeListener(propertyName, validateFunction as PropertyChangeListener)
+                }
+                for (action in validateActions) { view[action] = validateFunction }
+            }
             return view
         }
 
@@ -143,5 +155,72 @@ class Grasp {
             pm.addPropertyChangeListener onSelectedPMChanged as PropertyChangeListener
             callback caller
         }
+    }
+
+    static void enforceValidation(Attribute attribute, view, Closure attributeValidationFunction = null) {
+        def domainModel = attribute.model
+        if (domainModel.properties.containsKey("constraints")) {
+            Closure constraints = domainModel.constraints
+            def delegate = new ConstraintsCapture()
+            constraints.delegate = delegate
+            constraints.setResolveStrategy Closure.DELEGATE_ONLY
+            constraints()
+            def constraintList = delegate.constraints[attribute.propertyName]
+            constraintList?.each {
+                if (it.size) {
+                    Range range = it.size
+                    if (!range.containsWithinBounds(attribute.value.size())) {
+                        addErrorToPresentationModel(attribute, 'size')
+                    } else {
+                        removeErrorFromPresentationModel(attribute, 'size')
+                    }
+                }
+                if (it.match) {
+                    if (!attribute.value.toString().matches(it.match)) {
+                        addErrorToPresentationModel(attribute, 'match')
+                    } else {
+                        removeErrorFromPresentationModel(attribute, 'match')
+                    }
+                }
+
+                // notify the view
+                def attributeErrors = attribute.presentationModel.errors.value.findAll { it.source == attribute }
+                if (attributeValidationFunction) {
+                    attributeValidationFunction(attributeErrors, view)
+                }
+            }
+        }
+
+    }
+
+    static void enforceValidation(AttributeSwitch attribute, view, Closure attributeValidationFunction = null) {
+        enforceValidation(attribute.getValue(), view, attributeValidationFunction)
+    }
+
+    static void addErrorToPresentationModel(Attribute attribute, String ruleName) {
+        def newError = createAttributeError(attribute, ruleName)
+        if (attribute.hasProperty("presentationModel")) {
+            def newErrorsList = [] as Set
+            newErrorsList.addAll attribute.presentationModel.errors.value
+            newErrorsList.add newError
+            attribute.presentationModel.errors.value = newErrorsList
+        }
+    }
+    static void removeErrorFromPresentationModel(Attribute attribute, String ruleName) {
+        def newError = createAttributeError(attribute, ruleName)
+        def newErrorsList = [] as Set
+        newErrorsList.addAll attribute.presentationModel.errors.value
+        newErrorsList.remove newError
+        attribute.presentationModel.errors.value = newErrorsList
+    }
+    static com.canoo.grasp.demo.domain.Error createAttributeError(Attribute attribute, String ruleName) {
+        new com.canoo.grasp.demo.domain.Error(id: attribute.model.getClass().getName() + "." + attribute.propertyName + "." + ruleName, source: attribute)
+    }
+}
+
+class ConstraintsCapture implements GroovyInterceptable {
+    Map constraints = [:]
+    def invokeMethod(String name, args) {
+        constraints."$name" = args
     }
 }

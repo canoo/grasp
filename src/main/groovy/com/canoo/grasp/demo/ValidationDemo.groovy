@@ -2,17 +2,19 @@ package com.canoo.grasp.demo
 
 import com.canoo.grasp.Grasp
 import com.canoo.grasp.demo.components.GraspEditorFactory
+import com.canoo.grasp.demo.domain.Author
 import com.canoo.grasp.demo.domain.Book
 import com.canoo.grasp.demo.domain.Publisher
 import com.canoo.grasp.demo.pm.BookPM
 import groovy.swing.SwingBuilder
+import java.awt.Color
 import javax.swing.WindowConstants
 
 Grasp.initialize()
 Grasp.useBinding()
 
-Book gina = new Book(title: "gina", isbn: "0123456789", author: null, publishDate: new Date(), publisher: new Publisher(name: "publisher"))
-BookPM bookPM = new BookPM(model: gina)
+Book aBook = new Book(title: "The Singularity is Near", isbn: "0123456789", author: new Author(name: "Ray Kurzweil"), publishDate: new Date(), publisher: new Publisher(name: "New World Press"))
+BookPM bookPM = new BookPM(model: aBook)
 
 SwingBuilder builder = new SwingBuilder()
 builder.registerFactory('graspEditor', new GraspEditorFactory())
@@ -21,19 +23,25 @@ def frame = builder.frame(defaultCloseOperation: WindowConstants.EXIT_ON_CLOSE, 
     panel {
         vbox {
             hbox {
-                // bind a generic editor to the Spring Errors interface that all PMs have
-                // get notification when validation succeeds fails
-                graspEditor(bookPM.errors)
-            }
-            hbox {
                 label "Title: "
                 graspEditor(bookPM.title, columns: 20).bind bookPM.title, on: "keyReleased",
+                        validation: { errors, view ->
+                            view.background = (errors ? Color.PINK : Color.WHITE)
+                        },
                         validateOn: "keyReleased focusLost"  // when does validation occur?
             }
             hbox {
                 label "ISBN: "
                 graspEditor(bookPM.isbn, columns: 20).bind bookPM.isbn, on: "keyReleased",
+                        validation: { errors, view ->
+                            view.background = (errors ? Color.PINK : Color.WHITE)
+                        },
                         validateOn: "keyReleased focusLost"  // when does validation occur?
+            }
+            hbox {
+                // bind a generic editor to the Spring Errors interface that all PMs have
+                // get notification when validation succeeds fails
+                graspEditor(bookPM.errors)
             }
             hbox {
                 button('Create Errors', actionPerformed: {
@@ -74,4 +82,5 @@ User defines a text widget with widget specific error handling
 User defines a "validateOn" value (keyRelease focusLost)
 Grasp enforces validation on those events
 the widget is invoked with Errors list (could be empty) and a self-reference (for manipulation)
+Only inform widget when the error has to do with his attribute
 */

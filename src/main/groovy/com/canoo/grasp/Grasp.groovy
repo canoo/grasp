@@ -134,9 +134,10 @@ class Grasp {
             for (action in actions) { view[action] = update }
 
             // does this thing validate? If so, wire in some validation listeners
-            if (extra.validateOn && attribute) {
+            if (attribute) {
                 def validateActions = convert.validateOn?.tokenize()
-                def validateFunction = { enforceValidation(attribute) }
+                def attributeValidationFunction = convert.validation
+                def validateFunction = { enforceValidation(attribute, view, attributeValidationFunction) }
                 if (!validateActions && view.respondsTo("addActionListener")) {   // default
                     view.actionPerformed = validateFunction
                 } else if (!validateActions && view.respondsTo("addPropertyChangeListener")) {   // default
@@ -156,7 +157,7 @@ class Grasp {
         }
     }
 
-    static void enforceValidation(Attribute attribute) {
+    static void enforceValidation(Attribute attribute, view, Closure attributeValidationFunction = null) {
         def domainModel = attribute.model
         if (domainModel.properties.containsKey("constraints")) {
             Closure constraints = domainModel.constraints
@@ -169,24 +170,35 @@ class Grasp {
                 if (it.size) {
                     Range range = it.size
                     if (!range.containsWithinBounds(attribute.value.size())) {
-                        addErrorToPresentationModel(domainModel, attribute)
+                        addErrorToPresentationModel(attribute, 'size')
                     } else {
-                        removeErrorFromPresentationModel(domainModel, attribute)
+                        removeErrorFromPresentationModel(attribute, 'size')
                     }
                 }
                 if (it.match) {
                     if (!attribute.value.toString().matches(it.match)) {
-                        addErrorToPresentationModel(domainModel, attribute)
+                        addErrorToPresentationModel(attribute, 'match')
                     } else {
-                        removeErrorFromPresentationModel(domainModel, attribute)
+                        removeErrorFromPresentationModel(attribute, 'match')
                     }
+                }
+
+                // notify the view
+                def attributeErrors = attribute.presentationModel.errors.value.findAll { it.source == attribute }
+                if (attributeValidationFunction) {
+                    attributeValidationFunction(attributeErrors, view)
                 }
             }
         }
 
     }
-    static void addErrorToPresentationModel(domainModel, Attribute attribute) {
-        def newError = new com.canoo.grasp.demo.domain.Error(id: domainModel.getClass().getName() + "." + attribute.propertyName, source: attribute)
+
+    static void enforceValidation(AttributeSwitch attribute, view, Closure attributeValidationFunction = null) {
+        enforceValidation(attribute.getValue(), view, attributeValidationFunction)
+    }
+
+    static void addErrorToPresentationModel(Attribute attribute, String ruleName) {
+        def newError = createAttributeError(attribute, ruleName)
         if (attribute.hasProperty("presentationModel")) {
             def newErrorsList = [] as Set
             newErrorsList.addAll attribute.presentationModel.errors.value
@@ -194,16 +206,15 @@ class Grasp {
             attribute.presentationModel.errors.value = newErrorsList
         }
     }
-    static void removeErrorFromPresentationModel(domainModel, Attribute attribute) {
-        def newError = new com.canoo.grasp.demo.domain.Error(id: domainModel.getClass().getName() + "." + attribute.propertyName, source: attribute)
+    static void removeErrorFromPresentationModel(Attribute attribute, String ruleName) {
+        def newError = createAttributeError(attribute, ruleName)
         def newErrorsList = [] as Set
         newErrorsList.addAll attribute.presentationModel.errors.value
         newErrorsList.remove newError
         attribute.presentationModel.errors.value = newErrorsList
     }
-    
-    static void enforceValidation(AttributeSwitch attribute) {
-        enforceValidation(attribute.getValue())
+    static com.canoo.grasp.demo.domain.Error createAttributeError(Attribute attribute, String ruleName) {
+        new com.canoo.grasp.demo.domain.Error(id: attribute.model.getClass().getName() + "." + attribute.propertyName + "." + ruleName, source: attribute)
     }
 }
 

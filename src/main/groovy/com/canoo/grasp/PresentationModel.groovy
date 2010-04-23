@@ -30,7 +30,15 @@ class PresentationModel implements Cloneable {
             }
         }
         other
-    }   
+    }
+
+    void dispose() {
+        properties.each { key, value ->
+            if(value in [Attribute, AttributeSwitch, PresentationModelSwitch]) {
+                 value.dispose()
+            }
+        }
+    }
     
     PresentationModel() {
         pcs = new PropertyChangeSupport(this)
@@ -41,7 +49,7 @@ class PresentationModel implements Cloneable {
                 def fieldname = property.name
                 if (!(fieldname in "metaClass class".tokenize())) {
                     try {
-                        def pmClassName =  this.getClass().getPackage().getName() + "." + property.type.getSimpleName() + "PM"
+                        def pmClassName = GraspContext.instance.resolvePresentationModelClassName(property.type)
                         def pmClass = Class.forName(pmClassName)
                         def instance = fetchPrototype(pmClass).clone()
                         instance.model = [:]
@@ -81,11 +89,13 @@ class PresentationModel implements Cloneable {
             if (value in PresentationModelSwitch) { // todo: check (Andres)
                 def newPM = PresentationModel.fetchPrototype(value.adaptee.getClass()).clone()
                 newPM.model = model[key]
+                value.adaptee.dispose()
                 value.adaptee = newPM
                 return
             }
             if (isTransientProperty(key)) return
             this[key]?.removePropertyChangeListener listener
+            this[key]?.dispose()
             this[key] = new Attribute(model, key, this.getClass().name)
             this[key].addPropertyChangeListener listener
         }
@@ -103,6 +113,17 @@ class PresentationModel implements Cloneable {
     }
 
     static PresentationModel initializePrototype(PresentationModel pm) {
+        try {
+            String modelClassName = pm.getClass().name - 'PM'
+            Class modelClass = modelClassName as Class
+            def model = modelClass.newInstance()
+            pm.model = model
+            return pm
+        } catch(x) {
+            // ignore
+        }
+
+        
         def inspectPm = null
         inspectPm = {target ->
             def accum = [:]

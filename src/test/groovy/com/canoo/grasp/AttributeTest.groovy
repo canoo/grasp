@@ -9,6 +9,7 @@ class AttributeTest extends Specification {
     PropertyChangeListener changeListener
 
     void setup(){
+        Grasp.initialize()
         Map model = [a: 1]
         attribute = new Attribute(model, 'a', 'prefix')
         changeListener = Mock(PropertyChangeListener)

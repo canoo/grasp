@@ -12,9 +12,10 @@ class PMTableModelTest extends Specification {
     Class type
 
     void setup() {
+        Grasp.initialize()
         store = new Store()
         type = OneSimpleAttributePM
-        GraspContext.useBinding(store)
+        Grasp.useBinding(store)
         store.mockDomain(type)
     }
 

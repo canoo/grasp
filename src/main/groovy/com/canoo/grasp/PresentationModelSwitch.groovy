@@ -62,6 +62,7 @@ class PresentationModelSwitch extends PresentationModel {
             proxyAttribute.attribute = attribute
         }
         adaptee.addPropertyChangeListener listener
+        oldAdaptee?.dispose()
         firePropertyChange "adaptee", oldAdaptee, newAdaptee
 
 /*        def moveListeners = null

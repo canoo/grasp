@@ -14,6 +14,7 @@ class AttributeSwitch implements IAttribute, Cloneable {
     void setAttribute(Attribute newAttribute) {
         attribute?.removePropertyChangeListener listener
         def oldValue = value
+        attribute?.dispose()
         attribute = newAttribute
         attribute.addPropertyChangeListener listener
         this$propertyChangeSupport.firePropertyChange('value', oldValue, value)
@@ -40,5 +41,9 @@ class AttributeSwitch implements IAttribute, Cloneable {
         other.attribute = attribute?.clone()
         other.value = value
         other
+    }
+
+    void dispose() {
+        attribute?.dispose()
     }
 }

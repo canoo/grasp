@@ -3,6 +3,9 @@ package com.canoo.grasp
 import spock.lang.Specification
 
 class ScaffoldingTest extends Specification {
+    def setup() {
+        Grasp.initialize()
+    }
 
     def "PresentationModel can have attributes for simple types"() {
         when:
@@ -41,15 +44,21 @@ class Car {
     Brand brand
     Date year
     Owner owner
+
+    String toString() { "Car[wheels: $wheels, color: $color, brand: $brand, year: $year, owner: $owner]" }
 }
 
 class Brand {
     String name
+
+    String toString() { "Brand[name: $name]" }
 }
 
 class Owner {
     String firstname
     String lastname
+
+    String toString() { "Owner[firstname: $firstname, lastname: $lastname]"}
 }
 
 enum Color {

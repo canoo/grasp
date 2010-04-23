@@ -58,7 +58,7 @@ class PresentationModelSwitch extends PresentationModel {
             }
 
             def proxyAttribute = proxyAttributePerName.get(key, new AttributeSwitch())
-            attribute = attribute ?: new Attribute([(key) : newAdaptee[key]], key, newAdaptee.getClass().name) // for attributes without model 
+            attribute = attribute ?: new Attribute([(key) : newAdaptee[key]], key, newAdaptee.getClass().name, newAdaptee) // for attributes without model 
             proxyAttribute.attribute = attribute
         }
         adaptee.addPropertyChangeListener listener

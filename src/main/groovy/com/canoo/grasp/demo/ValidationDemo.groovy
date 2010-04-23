@@ -1,13 +1,15 @@
 package com.canoo.grasp.demo
 
-import com.canoo.grasp.GraspContext
+import com.canoo.grasp.Grasp
 import com.canoo.grasp.demo.components.GraspEditorFactory
 import com.canoo.grasp.demo.domain.Book
 import com.canoo.grasp.demo.domain.Publisher
+import com.canoo.grasp.demo.pm.BookPM
 import groovy.swing.SwingBuilder
 import javax.swing.WindowConstants
 
-GraspContext.useBinding()
+Grasp.initialize()
+Grasp.useBinding()
 
 Book gina = new Book(title: "gina", isbn: "0123456789", author: null, publishDate: new Date(), publisher: new Publisher(name: "publisher"))
 BookPM bookPM = new BookPM(model: gina)
@@ -24,10 +26,20 @@ def frame = builder.frame(defaultCloseOperation: WindowConstants.EXIT_ON_CLOSE, 
                 graspEditor(bookPM.errors)
             }
             hbox {
-                label "Default String: "
-                graspEditor(bookPM.title, columns: 20).bind bookPM.title,
-                        on: "keyReleased",
-                        validateOn: "keyRelease focusLost"  // when does validation occur?
+                label "Title: "
+                graspEditor(bookPM.title, columns: 20).bind bookPM.title, on: "keyReleased",
+                        validateOn: "keyReleased focusLost"  // when does validation occur?
+            }
+            hbox {
+                label "ISBN: "
+                graspEditor(bookPM.isbn, columns: 20).bind bookPM.isbn, on: "keyReleased",
+                        validateOn: "keyReleased focusLost"  // when does validation occur?
+            }
+            hbox {
+                button('Create Errors', actionPerformed: {
+                    bookPM.errors.value = bookPM.errors.value + new com.canoo.grasp.demo.domain.Error(id: "error x", source: new Object())
+                })
+                button('Clear Errors', actionPerformed: {bookPM.errors.value = []})
             }
         }
 

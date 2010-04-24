@@ -2,6 +2,7 @@ package com.canoo.grasp
 
 import com.canoo.grasp.demo.domain.Errors
 import java.beans.PropertyChangeListener
+import java.beans.PropertyChangeSupport
 
 class PresentationModel implements Cloneable {
     // protected static final Log LOG = LogFactory.getLog(PresentationModel)

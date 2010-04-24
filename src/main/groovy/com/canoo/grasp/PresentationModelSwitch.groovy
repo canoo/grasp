@@ -37,7 +37,7 @@ class PresentationModelSwitch {
                 scaffoldMappings.each { fname, prop ->
                     if(PresentationModel.isTransientProperty(fname) || fname == 'model') return
                     if(prop instanceof Attribute) {
-                        // println "#init $fname"
+                        // println "#init $fname $prop.lookupPrefix"
                         def attributeSwitch = new AttributeSwitch()
                         attributeSwitch.attribute = prop
                         attributeSwitch.addPropertyChangeListener listener
@@ -50,11 +50,11 @@ class PresentationModelSwitch {
                 return
             }
             if(PresentationModel.isTransientProperty(fieldname) || fieldname == 'model') return
-            // println "init $fieldname"
+            // println "init $fieldname $property.type"
             if(property.type in Attribute) {
                 def attributeSwitch = new AttributeSwitch()
                 proxyAttributePerName[fieldname] = new AttributeSwitch()
-                Attribute attr = new Attribute([(fieldname): null], fieldname, property.type.name)
+                Attribute attr = new Attribute([(fieldname): null], fieldname, clazz.name)
                 attributeSwitch.attribute = attr
                 attributeSwitch.addPropertyChangeListener listener
                 proxyAttributePerName[fieldname] = attributeSwitch
@@ -159,10 +159,6 @@ class PresentationModelSwitch {
         def v = proxyAttributePerName[propname]
         if(v instanceof LazyPresentationModelSwitch) v = v.resolve()
         v
-    }
-
-    void setModel(Object model) {
-        throw new UnsupportedOperationException("cannot set model on proxy")
     }
 
     boolean available() {

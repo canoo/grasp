@@ -67,7 +67,7 @@ class Attribute implements IAttribute, Cloneable {
     private model
     private String propertyName
     final Class type
-    private final String lookupPrefix
+    final String lookupPrefix
     def presentationModel
     
     @Bindable String label

@@ -15,12 +15,12 @@ class Grasp {
         // additional stuff that must happen before anything else
     }
 
-    private static boolean enhacerHasRun = false
+    private static boolean enhancerHasRun = false
 
     static void enhanceClasses() {
         synchronized (Grasp) {
-            if (!enhacerHasRun) {
-                enhacerHasRun = true
+            if (!enhancerHasRun) {
+                enhancerHasRun = true
             } else {
                 return
             }

@@ -1,11 +1,10 @@
 buildscript {
-    repositories {
-        mavenCentral()
+    repositories {        
         mavenRepo urls: 'https://ci.canoo.com/nexus/content/groups/public'
     }
 
     dependencies {
-        classpath "com.automatedlogic.gradle:gradle-idea-plugin:0.1"
+        classpath "com.automatedlogic.gradle:gradle-idea-plugin:0.2"
     }
 }
 
@@ -18,7 +17,7 @@ apply plugin: com.automatedlogic.gradle.plugin.idea.IdeaGenerationPlugin
 
 repositories {
     mavenCentral()
-    mavenRepo urls: ["http://m2repo.spockframework.org/snapshots", "http://download.java.net/maven/2/"]
+    mavenRepo urls: ["http://m2repo.spockframework.org/snapshots", 'https://ci.canoo.com/nexus/content/groups/public']
 }
 
 dependencies {

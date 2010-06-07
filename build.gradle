@@ -1,19 +1,20 @@
 buildscript {
-    repositories {        
-        mavenRepo urls: 'https://ci.canoo.com/nexus/content/groups/public'
+    repositories {
+        mavenRepo urls: 'http://gradle.artifactoryonline.com/gradle/plugins'
     }
-
     dependencies {
-        classpath "com.automatedlogic.gradle:gradle-idea-plugin:0.2"
+        classpath "org.gradle.plugins:gradle-idea-plugin:0.3.1"
     }
 }
+
 
 
 defaultTasks = ['test']
 
 apply plugin: 'groovy'
 apply plugin: 'code-quality'
-apply plugin: com.automatedlogic.gradle.plugin.idea.IdeaGenerationPlugin
+apply plugin: 'org.gradle.idea'
+
 
 repositories {
     mavenCentral()
@@ -21,12 +22,12 @@ repositories {
 }
 
 dependencies {
-    groovy    "org.codehaus.groovy:groovy-all:1.7.0"
-    compile   "org.spockframework:spock-core:0.4-SNAPSHOT"
+    groovy    "org.codehaus.groovy:groovy-all:1.7.2"
+    compile   "org.spockframework:spock-core:0.4-groovy-1.7"
     compile   "org.swinglabs:swingx:0.9.7"
-    compile   "org.springframework:spring-context:3.0.0.RELEASE"
-    compile   "org.springframework:spring-core:3.0.0.RELEASE"
-    compile   "org.springframework:spring-beans:3.0.0.RELEASE"
+    compile   "org.springframework:spring-context:3.0.2.RELEASE"
+    compile   "org.springframework:spring-core:3.0.2.RELEASE"
+    compile   "org.springframework:spring-beans:3.0.2.RELEASE"
     compile   'commons-logging:commons-logging:1.1.1'
     compile   group: 'log4j', name: 'log4j', version: '1.2.9', transitive: false
     testCompile "junit:junit:4.8.1"
@@ -34,7 +35,7 @@ dependencies {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '0.9-preview-1'
+    gradleVersion = '0.9-preview-3'
     jarPath = 'wrapper'
 }
 

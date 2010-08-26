@@ -5,7 +5,7 @@ import java.beans.PropertyChangeListener
 
 class PresentationModelSwitch {
 
-    PresentationModel adaptee
+    PresentationModel adaptee 
     final Map<String, AttributeSwitch> proxyAttributePerName = [:] // propname to proxyAttribute
 
     private final PresentationModel defaultPM // in use when no real adaptee is set
@@ -20,7 +20,7 @@ class PresentationModelSwitch {
     /**
      * @param defaultPM.model may be null
      */
-    PresentationModelSwitch(Class clazz) {
+    PresentationModelSwitch(Class clazz) { // make generic?
         pcs = new PropertyChangeSupport(this)
 
         presentationModelClass = clazz

@@ -52,7 +52,7 @@ builder.edt {
                 attributeColumn bind: {it.isbn}, editable: false
                 attributeColumn bind: {it.author}, editable: false
                 attributeColumn bind: {it.publisher.name}
-                // attributeColumn 'publisher.name', editable: false
+                // @bind attributeColumn 'publisher.name', editable: false
             }
         }
         hstrut 20

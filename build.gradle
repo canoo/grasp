@@ -12,3 +12,8 @@ dependencies {
     compile     "org.spockframework:spock-core:0.4-SNAPSHOT"
     testCompile "junit:junit:4.7"
 }
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '0.9-rc-1'
+    jarPath = 'wrapper'
+}

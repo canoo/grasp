@@ -22,56 +22,36 @@ GraspContext.useBinding(store)
 List list = BookPM.list()
 def selectedBook = new PresentationModelSwitch(new BookPM())
 
-def master
-SwingBuilder builder = new SwingBuilder()
-def frame = builder.frame(defaultCloseOperation: EXIT_ON_CLOSE) {
+def frame = new SwingBuilder().frame(defaultCloseOperation: EXIT_ON_CLOSE, pack: true) {
     vbox {
         scrollPane {
-            master = table(selectionMode: SINGLE_SELECTION) {
-                tableModel(list: list) { // todo: should be enough to bind against the PM (needs property selection)
-                    closureColumn header: "title",
-                            read: {pm -> pm.title.value},
-                            write: {pm, value -> pm.title.value = value  }
-                    closureColumn header: "isbn",
-                            read: {pm -> pm.isbn.value}  // todo: should be enough to bind against the attribute
-                    closureColumn header: "author",
-                            read: {pm -> pm.author.value}
-                    closureColumn header: "publisher",
-                            read: {pm -> pm.publisher.name.value} // no update trigger
-
-                    //attributeColumn editable: true, bind: {pm -> pm.title}
-                    //referenceColumn bind: {pm -> pm.publisher.name}
+            def master = table(selectionMode: SINGLE_SELECTION) {
+                tableModel(list: list) {
+                    closureColumn header: "Title",
+                            read:  { pm -> pm.title.value },
+                            write: { pm, value -> pm.title.value = value  }
+                    closureColumn header: "ISBN",
+                            read:  { pm -> pm.isbn.value }
                 }
             }
             master.syncWith selectedBook
             master.syncList BookPM
         }
-        hstrut 20
+        hstrut 20 // detail view
         label selectedBook.title.description
         textField(columns: 20).bind selectedBook.title, on: "keyReleased"
         label selectedBook.isbn.description
         textField(columns: 20).bind selectedBook.isbn, on: "keyReleased"
 
-        label selectedBook.publisher.name.description
-        textField(columns: 20).bind selectedBook.publisher, { it.name }
-        label selectedBook.publisher.name.description
-        textField(columns: 20).bind selectedBook.publisher, { it.name }
-
-        def publishers = ["aaa","bbb","ccc"].collect { new PublisherPM(model:new Publisher(name:it)) }
-        comboBox(items:publishers) //todo : binden
-
-        hbox {
-            button label: "top", actionPerformed: { selectedBook.adaptee = list[0] }
+        hbox {   // buttons
+            button label: "top", actionPerformed: { selectedBook.adaptee = list.first() }
             button label: "new", actionPerformed: {
                 BookPM newPM = new BookPM(model: new Book(title: 'new', publisher: new Publisher()))
                 store.save newPM
                 selectedBook.adaptee = newPM
             }
-            button("remove", actionPerformed: { selectedBook.delete() }).onSwitch selectedBook //todo: not reliable
-
+            //button("remove", actionPerformed: { selectedBook.delete() }).onSwitch selectedBook //todo: not reliable
         }
     }
 }
-
-frame.pack()
 frame.visible = true

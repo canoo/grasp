@@ -1,32 +1,37 @@
 package com.canoo.grasp.demo
 
 import groovy.swing.SwingBuilder
-import javax.swing.WindowConstants
+import static javax.swing.WindowConstants.EXIT_ON_CLOSE
 import com.canoo.grasp.demo.domain.Book
 import com.canoo.grasp.demo.domain.Publisher
 
 import com.canoo.grasp.GraspContext
+import com.canoo.grasp.Store
 
-Book gina = new Book(title: "gina", isbn: "0123456789", author: null, publisher: new Publisher(name: "publisher"))
+Book gina = new Book(
+        title: "Groovy in Action",
+        publisher: new Publisher(name: "Manning")
+)
 BookPM bookPM = new BookPM(model: gina)
+def title = bookPM.title
 
-GraspContext.useBinding()
+GraspContext.useBinding(new Store())
 
-SwingBuilder builder = new SwingBuilder()
-def frame = builder.frame(defaultCloseOperation: WindowConstants.EXIT_ON_CLOSE) {
-    panel {
-        vbox {
-            label bookPM.title.description
-            label().bind text:bookPM.title, read:{it.reverse()}
-            label "default"
-            textField(columns: 20).bind bookPM.title
-            label "actionPerformed focusLost"
-            textField(columns: 20).bind bookPM.title, on: "actionPerformed focusLost"
-            label "keyReleased"
-            textField(columns: 20).bind bookPM.title, on: "keyReleased"
-        }
+def frame = new SwingBuilder().frame(defaultCloseOperation: EXIT_ON_CLOSE,
+        pack: true,
+        show:true) {
+    panel(border: emptyBorder([10]*4)) {
+        gridLayout cols: 2, rows:4
+        label "Instant change"
+        textField(columns:12).bind title, on: "keyReleased"
+        label "Trigger change"
+        textField().bind title, on: "actionPerformed focusLost"
+        label "Reversed view"
+        label().bind  title, read: { String bla -> bla.reverse() }
+        button("Save").bind enabled: title, read: { title.dirty  }
+        button("Undo").bind enabled: title,
+                read: { title.dirty  },
+                write:{ title.value = title.modelValue }
     }
 }
-frame.bind bookPM.title, read:{it*2}
-frame.pack()
-frame.visible = true
+frame.bind title

@@ -7,7 +7,7 @@ class Attribute implements IAttribute {
     Attribute(model, String propname, String lookupPrefix) {
         this.model = model
         propertyName = propname
-        description = GraspContext.lookup("${lookupPrefix}.${propertyName}.description".toString())
+        description = propertyName[0].toUpperCase() + propertyName[1..-1] // call GraspContext lookup
         value = modelValue
     }
 
@@ -19,5 +19,7 @@ class Attribute implements IAttribute {
     @Bindable def value
 
     def getModelValue() { model[propertyName] }
+
+    boolean isDirty() { value != modelValue }
 
 }
